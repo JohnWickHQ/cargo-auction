@@ -8,16 +8,29 @@ import {
   Group,
   Button,
 } from "@mantine/core";
-import type { AuctionDetail } from "@/shared/types";
+import type { BidderStatus } from "@/shared/types";
 import { bidderStatusLabels, formatPrice } from "@/shared/config";
 
-export const PriceBand = memo(function PriceBand({
-  auction,
-  onBetClick,
-}: {
-  auction: AuctionDetail;
+interface TradingInfo {
+  current_price: number;
+  min_price: number | null;
+  max_price: number | null;
+  bet_step: number;
+  bidder_status: BidderStatus;
+  can_set_bet: boolean;
+}
+
+interface PriceBandProps {
+  trading: TradingInfo;
+  is_bet_present: boolean;
   onBetClick?: () => void;
-}) {
+}
+
+export const PriceBand = memo(function PriceBand({
+  trading,
+  is_bet_present,
+  onBetClick,
+}: PriceBandProps) {
   return (
     <Box
       bg="var(--mantine-color-gray-light)"
@@ -30,46 +43,43 @@ export const PriceBand = memo(function PriceBand({
             Текущая цена
           </Text>
           <Text size="lg" fw={700}>
-            {formatPrice(auction.trading.current_price)}
+            {formatPrice(trading.current_price)}
           </Text>
         </Stack>
-        {auction.trading.min_price !== null &&
-          auction.trading.min_price !== undefined && (
-            <Stack gap={2}>
-              <Text size="xs" c="dimmed">
-                Мин. цена
-              </Text>
-              <Text size="sm">{formatPrice(auction.trading.min_price)}</Text>
-            </Stack>
-          )}
-        {auction.trading.max_price !== null &&
-          auction.trading.max_price !== undefined && (
-            <Stack gap={2}>
-              <Text size="xs" c="dimmed">
-                Макс. цена
-              </Text>
-              <Text size="sm">{formatPrice(auction.trading.max_price)}</Text>
-            </Stack>
-          )}
+        {trading.min_price !== null && trading.min_price !== undefined && (
+          <Stack gap={2}>
+            <Text size="xs" c="dimmed">
+              Мин. цена
+            </Text>
+            <Text size="sm">{formatPrice(trading.min_price)}</Text>
+          </Stack>
+        )}
+        {trading.max_price !== null && trading.max_price !== undefined && (
+          <Stack gap={2}>
+            <Text size="xs" c="dimmed">
+              Макс. цена
+            </Text>
+            <Text size="sm">{formatPrice(trading.max_price)}</Text>
+          </Stack>
+        )}
         <Stack gap={2}>
           <Text size="xs" c="dimmed">
             Шаг ставки
           </Text>
-          <Text size="sm">{formatPrice(auction.trading.bet_step)}</Text>
+          <Text size="sm">{formatPrice(trading.bet_step)}</Text>
         </Stack>
       </SimpleGrid>
       <Group justify="space-between" mt="md" wrap="wrap">
         <Badge
-          color={auction.is_bet_present ? "blue" : "gray"}
+          color={is_bet_present ? "blue" : "gray"}
           variant="light"
           size="lg"
         >
-          {bidderStatusLabels[auction.trading.bidder_status] ??
-            auction.trading.bidder_status}
+          {bidderStatusLabels[trading.bidder_status]}
         </Badge>
-        {auction.trading.can_set_bet ? (
+        {trading.can_set_bet ? (
           <Button onClick={onBetClick}>
-            {auction.is_bet_present ? "Изменить ставку" : "Сделать ставку"}
+            {is_bet_present ? "Изменить ставку" : "Сделать ставку"}
           </Button>
         ) : (
           <Button disabled>Ставки недоступны</Button>

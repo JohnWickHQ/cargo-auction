@@ -15,7 +15,6 @@ import {
   getBetAction,
 } from "@/shared/config";
 
-// eslint-disable-next-line complexity
 const MobileCardInner = memo(function MobileCard({
   auction,
 }: {
@@ -49,18 +48,14 @@ const MobileCardInner = memo(function MobileCard({
             {auction.cargo_num}
           </Text>
           <Badge
-            color={auctionTypeColors[auction.auc_type]!}
+            color={auctionTypeColors[auction.auc_type]}
             variant="light"
             size="sm"
           >
-            {auctionTypeLabels[auction.auc_type] ?? auction.auc_type}
+            {auctionTypeLabels[auction.auc_type]}
           </Badge>
-          <Badge
-            color={statusColors[auction.status]!}
-            variant="light"
-            size="sm"
-          >
-            {auctionStatusLabels[auction.status] ?? auction.status}
+          <Badge color={statusColors[auction.status]} variant="light" size="sm">
+            {auctionStatusLabels[auction.status]}
           </Badge>
         </Group>
         <Group gap="xs" wrap="wrap" justify="space-between">

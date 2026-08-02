@@ -1,12 +1,21 @@
 import { memo } from "react";
 import { Stack, Text, Group, Badge } from "@mantine/core";
-import type { AuctionDetail } from "@/shared/types";
+
+interface CargoInfoProps {
+  cargo_name: string;
+  cargo_weight: number | null;
+  cargo_volume: number | null;
+  body_type: string | null;
+  cargo_requirements: string | null;
+}
 
 export const CargoInfo = memo(function CargoInfo({
-  auction,
-}: {
-  auction: AuctionDetail;
-}) {
+  cargo_name,
+  cargo_weight,
+  cargo_volume,
+  body_type,
+  cargo_requirements,
+}: CargoInfoProps) {
   return (
     <Stack gap={2}>
       <Text size="xs" c="dimmed">
@@ -14,27 +23,27 @@ export const CargoInfo = memo(function CargoInfo({
       </Text>
       <Group gap="xs" wrap="wrap">
         <Text size="sm" fw={500}>
-          {auction.cargo_name}
+          {cargo_name}
         </Text>
-        {auction.cargo_weight !== null && (
+        {cargo_weight !== null && (
           <Text size="sm" c="dimmed">
-            · {auction.cargo_weight} кг
+            · {cargo_weight} кг
           </Text>
         )}
-        {auction.cargo_volume !== null && (
+        {cargo_volume !== null && (
           <Text size="sm" c="dimmed">
-            · {auction.cargo_volume} м³
+            · {cargo_volume} м³
           </Text>
         )}
-        {auction.body_type && (
+        {body_type && (
           <Badge size="sm" variant="outline" color="gray">
-            {auction.body_type}
+            {body_type}
           </Badge>
         )}
       </Group>
-      {auction.cargo_requirements && (
+      {cargo_requirements && (
         <Text size="sm" c="dimmed">
-          {auction.cargo_requirements}
+          {cargo_requirements}
         </Text>
       )}
     </Stack>

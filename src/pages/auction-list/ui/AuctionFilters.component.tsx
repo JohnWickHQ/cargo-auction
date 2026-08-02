@@ -15,7 +15,7 @@ import {
 import { useDisclosure } from "@mantine/hooks";
 import { DatePickerInput } from "@/shared/ui";
 import { IconFilter, IconX } from "@tabler/icons-react";
-import { AuctionTypeValues, AuctionStatusValues } from "@/shared/types";
+import { AuctionTypeValues, AuctionStatusValues } from "@/shared/config";
 import { useFiltersSync } from "../model/use-filters-sync";
 import type { AuctionFilters } from "../model/filters.schema";
 import { CitySelect } from "@/shared/ui";

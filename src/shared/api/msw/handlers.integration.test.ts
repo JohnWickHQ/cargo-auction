@@ -6,8 +6,8 @@ import {
   rankBets,
   applyWinStatus,
   validateBetPrice,
-  uuid,
 } from "./bet-logic";
+import { uuid } from "@/shared/lib";
 
 function createMockAuction(
   overrides: Partial<AuctionDetail> = {}

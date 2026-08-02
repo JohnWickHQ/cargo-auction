@@ -1,12 +1,11 @@
-export const AuctionTypeValues = ["Request", "Up", "Down", "FixPrice"] as const;
-export type AuctionType = (typeof AuctionTypeValues)[number];
+import {
+  AuctionTypeValues,
+  AuctionStatusValues,
+} from "@/shared/config/auction-constants";
 
-export const AuctionStatusValues = [
-  "Active",
-  "Completed",
-  "Cancelled",
-  "Draft",
-] as const;
+export { AuctionTypeValues, AuctionStatusValues };
+
+export type AuctionType = (typeof AuctionTypeValues)[number];
 export type AuctionStatus = (typeof AuctionStatusValues)[number];
 
 export type BidderStatus =

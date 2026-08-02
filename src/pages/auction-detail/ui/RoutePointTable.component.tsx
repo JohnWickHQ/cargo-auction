@@ -1,12 +1,20 @@
 import { memo } from "react";
 import { Table } from "@mantine/core";
-import type { AuctionDetail } from "@/shared/types";
+
+interface RoutePoint {
+  city: string;
+  address: string;
+  type: "loading" | "unloading";
+  date: string;
+}
+
+interface RoutePointTableProps {
+  routePoints: RoutePoint[];
+}
 
 export const RoutePointTable = memo(function RoutePointTable({
   routePoints,
-}: {
-  routePoints: AuctionDetail["route_points"];
-}) {
+}: RoutePointTableProps) {
   return (
     <Table striped withRowBorders withTableBorder>
       <Table.Thead>

@@ -20,53 +20,96 @@ export const AuctionCardContent = memo(function AuctionCardContent({
   auction: AuctionDetail;
   onBetClick?: () => void;
 }) {
+  const {
+    cargo_num,
+    auc_type,
+    status,
+    no_view_cargo_price,
+    trading,
+    is_bet_present,
+    load_city,
+    unload_city,
+    load_date,
+    unload_date,
+    cargo_name,
+    cargo_weight,
+    cargo_volume,
+    body_type,
+    cargo_requirements,
+    organizer,
+    contacts,
+    hide_points_address_and_contacts,
+    payment_terms,
+    route_points,
+  } = auction;
+
   return (
     <Card withBorder padding="lg">
       <Stack gap="md">
         <Group justify="space-between" wrap="wrap">
-          <Title order={3}>Заявка {auction.cargo_num}</Title>
+          <Title order={3}>Заявка {cargo_num}</Title>
           <Group gap="sm">
-            <Badge color={auctionTypeColors[auction.auc_type]!} size="lg">
-              {auctionTypeLabels[auction.auc_type] ?? auction.auc_type}
+            <Badge color={auctionTypeColors[auc_type]} size="lg">
+              {auctionTypeLabels[auc_type]}
             </Badge>
-            <Badge color={statusColors[auction.status]!} size="lg">
-              {auctionStatusLabels[auction.status] ?? auction.status}
+            <Badge color={statusColors[status]} size="lg">
+              {auctionStatusLabels[status]}
             </Badge>
           </Group>
         </Group>
 
-        {!auction.no_view_cargo_price && (
-          <PriceBand
-            auction={auction}
-            {...(onBetClick ? { onBetClick } : {})}
-          />
-        )}
+        {!no_view_cargo_price &&
+          (onBetClick ? (
+            <PriceBand
+              trading={trading}
+              is_bet_present={is_bet_present}
+              onBetClick={onBetClick}
+            />
+          ) : (
+            <PriceBand trading={trading} is_bet_present={is_bet_present} />
+          ))}
 
         <Divider />
-        <RouteInfo auction={auction} />
-        <CargoInfo auction={auction} />
-        <OrganizerInfo auction={auction} />
+        <RouteInfo
+          load_city={load_city}
+          unload_city={unload_city}
+          load_date={load_date}
+          unload_date={unload_date}
+        />
+        <CargoInfo
+          cargo_name={cargo_name}
+          cargo_weight={cargo_weight}
+          cargo_volume={cargo_volume}
+          body_type={body_type}
+          cargo_requirements={cargo_requirements}
+        />
+        <OrganizerInfo
+          name={organizer.name}
+          inn={organizer.inn}
+          hide_points_address_and_contacts={hide_points_address_and_contacts}
+          contacts={contacts}
+        />
 
-        {auction.payment_terms && (
+        {payment_terms && (
           <>
             <Divider />
             <Stack gap={2}>
               <Text size="xs" c="dimmed">
                 Условия оплаты
               </Text>
-              <Text size="sm">{auction.payment_terms}</Text>
+              <Text size="sm">{payment_terms}</Text>
             </Stack>
           </>
         )}
 
-        {!auction.hide_points_address_and_contacts && (
+        {!hide_points_address_and_contacts && (
           <>
             <Divider />
             <Stack gap="xs">
               <Text size="xs" c="dimmed">
                 Маршрут
               </Text>
-              <RoutePointTable routePoints={auction.route_points} />
+              <RoutePointTable routePoints={route_points} />
             </Stack>
           </>
         )}

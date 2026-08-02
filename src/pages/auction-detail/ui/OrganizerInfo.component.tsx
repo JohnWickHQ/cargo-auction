@@ -1,12 +1,19 @@
 import { memo } from "react";
 import { Stack, Text, SimpleGrid } from "@mantine/core";
-import type { AuctionDetail } from "@/shared/types";
+
+interface OrganizerInfoProps {
+  name: string;
+  inn: string;
+  hide_points_address_and_contacts: boolean;
+  contacts: { person: string; phone: string; email: string } | null;
+}
 
 export const OrganizerInfo = memo(function OrganizerInfo({
-  auction,
-}: {
-  auction: AuctionDetail;
-}) {
+  name,
+  inn,
+  hide_points_address_and_contacts,
+  contacts,
+}: OrganizerInfoProps) {
   return (
     <Stack gap={2}>
       <Text size="xs" c="dimmed">
@@ -14,21 +21,21 @@ export const OrganizerInfo = memo(function OrganizerInfo({
       </Text>
       <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="sm">
         <Stack gap={2}>
-          <Text size="sm">{auction.organizer.name}</Text>
+          <Text size="sm">{name}</Text>
           <Text size="xs" c="dimmed">
-            ИНН {auction.organizer.inn}
+            ИНН {inn}
           </Text>
         </Stack>
-        {!auction.hide_points_address_and_contacts && auction.contacts && (
+        {!hide_points_address_and_contacts && contacts && (
           <Stack gap={2}>
-            <Text size="sm">{auction.contacts.person}</Text>
+            <Text size="sm">{contacts.person}</Text>
             <Text size="xs" c="dimmed">
-              {auction.contacts.phone} · {auction.contacts.email}
+              {contacts.phone} · {contacts.email}
             </Text>
           </Stack>
         )}
       </SimpleGrid>
-      {auction.hide_points_address_and_contacts && (
+      {hide_points_address_and_contacts && (
         <Text size="sm" c="dimmed" fs="italic">
           Контакты скрыты
         </Text>

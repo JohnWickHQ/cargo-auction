@@ -52,22 +52,22 @@ export const DesktopRow = memo(function DesktopRow({
       <Table.Td>{auction.cargo_num}</Table.Td>
       <Table.Td>
         <Badge
-          color={auctionTypeColors[auction.auc_type]!}
+          color={auctionTypeColors[auction.auc_type]}
           variant="light"
           size="sm"
           styles={badgeStyles}
         >
-          {auctionTypeLabels[auction.auc_type] ?? auction.auc_type}
+          {auctionTypeLabels[auction.auc_type]}
         </Badge>
       </Table.Td>
       <Table.Td>
         <Badge
-          color={statusColors[auction.status]!}
+          color={statusColors[auction.status]}
           variant="light"
           size="sm"
           styles={badgeStyles}
         >
-          {auctionStatusLabels[auction.status] ?? auction.status}
+          {auctionStatusLabels[auction.status]}
         </Badge>
       </Table.Td>
       <Table.Td>
@@ -113,7 +113,7 @@ export const DesktopRow = memo(function DesktopRow({
       <Table.Td>
         {auction.is_bet_present ? (
           <Badge color="blue" size="sm" variant="light" styles={badgeStyles}>
-            {bidderStatusLabels[auction.bidder_status] ?? auction.bidder_status}
+            {bidderStatusLabels[auction.bidder_status]}
           </Badge>
         ) : (
           <Text size="sm" c="dimmed">

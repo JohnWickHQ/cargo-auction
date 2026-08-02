@@ -12,12 +12,12 @@ import { createStore } from "./store";
 import { generateSeedAuctions } from "./seed";
 import { filterAuctions } from "./filter-auctions";
 import {
-  uuid,
   createBet,
   rankBets,
   validateBetPrice,
   applyWinStatus,
 } from "./bet-logic";
+import { uuid } from "@/shared/lib";
 
 let _store: MswStore | null = null;
 

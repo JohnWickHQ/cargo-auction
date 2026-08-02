@@ -1,13 +1,6 @@
 import type { Bet, BidderStatus, AuctionDetail } from "@/shared/types";
 import { VAT_RATE } from "@/shared/config";
-
-export function uuid(): string {
-  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
-    const r = (Math.random() * 16) | 0;
-    const v = c === "x" ? r : (r & 0x3) | 0x8;
-    return v.toString(16);
-  });
-}
+import { uuid } from "@/shared/lib";
 
 export function createBet(price: number, carrierName = "Перевозчик-1"): Bet {
   return {
@@ -42,29 +35,7 @@ export function rankBets(bets: Bet[], aucType: string): Bet[] {
   return sorted;
 }
 
-export function validateBetPrice(
-  price: number,
-  {
-    minPrice,
-    maxPrice,
-    betStep,
-  }: { minPrice?: number | null; maxPrice?: number | null; betStep: number }
-): string | null {
-  if (!price || price <= 0) {
-    return "Цена обязательна и должна быть больше 0";
-  }
-  if (minPrice && price < minPrice) {
-    return `Минимальная цена: ${minPrice}`;
-  }
-  if (maxPrice && price > maxPrice) {
-    return `Максимальная цена: ${maxPrice}`;
-  }
-  const deviation = Math.abs(Math.round(price / betStep) * betStep - price);
-  if (deviation >= 0.001) {
-    return `Шаг ставки: ${betStep}`;
-  }
-  return null;
-}
+export { validateBetPrice } from "@/shared/lib/bet-validation";
 
 export function applyWinStatus(ranked: Bet[], auction: AuctionDetail): void {
   const winner = ranked.find((b) => !b.is_cancelled);

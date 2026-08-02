@@ -37,7 +37,7 @@ src/
     └── ui/             # CitySelect, ColorSchemeToggle
 ```
 
-**Import direction**: `app → pages → entities → shared`. No `widgets/` or `features/` layers — single-page components and single-consumer logic live in their owning pages (FSD v2.1 «Pages First» principle).
+**Import direction**: `app → routes → pages → entities → shared`. No `widgets/` or `features/` layers — single-page components and single-consumer logic live in their owning pages (FSD v2.1 «Pages First» principle).
 
 ## Data Flow
 

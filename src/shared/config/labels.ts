@@ -1,39 +1,46 @@
-export const actionLabels: Record<string, string> = {
+import type {
+  AuctionType,
+  AuctionStatus,
+  BidderStatus,
+  PrimaryAction,
+} from "@/shared/types";
+
+export const actionLabels: Record<PrimaryAction, string> = {
   make_bet: "Сделать ставку",
   change_bet: "Изменить ставку",
   view_bets: "Смотреть ставки",
   disabled: "Недоступно",
 };
 
-export const auctionTypeLabels: Record<string, string> = {
+export const auctionTypeLabels: Record<AuctionType, string> = {
   Request: "Заявка",
   Up: "Повышение",
   Down: "Понижение",
   FixPrice: "Фикс. цена",
 };
 
-export const auctionTypeColors: Record<string, string> = {
+export const auctionTypeColors: Record<AuctionType, string> = {
   Request: "blue",
   Up: "green",
   Down: "red",
   FixPrice: "gray",
 };
 
-export const auctionStatusLabels: Record<string, string> = {
+export const auctionStatusLabels: Record<AuctionStatus, string> = {
   Active: "Активен",
   Completed: "Завершён",
   Cancelled: "Отменён",
   Draft: "Черновик",
 };
 
-export const statusColors: Record<string, string> = {
+export const statusColors: Record<AuctionStatus, string> = {
   Active: "green",
   Completed: "blue",
   Cancelled: "red",
   Draft: "gray",
 };
 
-export const bidderStatusLabels: Record<string, string> = {
+export const bidderStatusLabels: Record<BidderStatus, string> = {
   Leading: "Лидируете",
   Losing: "Проигрываете",
   Winner: "Победитель",

@@ -1,12 +1,19 @@
 import { memo } from "react";
 import { SimpleGrid, Stack, Text } from "@mantine/core";
-import type { AuctionDetail } from "@/shared/types";
+
+interface RouteInfoProps {
+  load_city: string;
+  unload_city: string;
+  load_date: string | null;
+  unload_date: string | null;
+}
 
 export const RouteInfo = memo(function RouteInfo({
-  auction,
-}: {
-  auction: AuctionDetail;
-}) {
+  load_city,
+  unload_city,
+  load_date,
+  unload_date,
+}: RouteInfoProps) {
   return (
     <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="sm">
       <Stack gap={2}>
@@ -14,7 +21,7 @@ export const RouteInfo = memo(function RouteInfo({
           Маршрут
         </Text>
         <Text size="sm">
-          {auction.load_city} → {auction.unload_city}
+          {load_city} → {unload_city}
         </Text>
       </Stack>
       <Stack gap={2}>
@@ -22,12 +29,10 @@ export const RouteInfo = memo(function RouteInfo({
           Даты
         </Text>
         <Text size="sm">
-          {auction.load_date
-            ? new Date(auction.load_date).toLocaleDateString("ru-RU")
-            : "—"}
+          {load_date ? new Date(load_date).toLocaleDateString("ru-RU") : "—"}
           {" — "}
-          {auction.unload_date
-            ? new Date(auction.unload_date).toLocaleDateString("ru-RU")
+          {unload_date
+            ? new Date(unload_date).toLocaleDateString("ru-RU")
             : "—"}
         </Text>
       </Stack>
