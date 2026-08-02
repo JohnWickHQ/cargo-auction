@@ -1,93 +1,6 @@
 import { describe, it, expect } from "vitest";
-import type {
-  AuctionListRequest,
-  AuctionListResponse,
-  AuctionDetail,
-} from "@/shared/types";
-
-// eslint-disable-next-line complexity
-function filterAuctions(
-  auctions: AuctionDetail[],
-  request: AuctionListRequest
-): AuctionListResponse {
-  let items = [...auctions];
-
-  if (request.cargo_num) {
-    const num = request.cargo_num.toLowerCase();
-    items = items.filter((a) => a.cargo_num.toLowerCase().includes(num));
-  }
-  if (request.status) {
-    items = items.filter((a) => a.status === request.status);
-  }
-  if (request.statuses && request.statuses.length > 0) {
-    items = items.filter((a) => request.statuses!.includes(a.status));
-  }
-  if (request.auc_type) {
-    items = items.filter((a) => a.auc_type === request.auc_type);
-  }
-  if (request.load_city) {
-    items = items.filter((a) => a.load_city === request.load_city);
-  }
-  if (request.unload_city) {
-    items = items.filter((a) => a.unload_city === request.unload_city);
-  }
-  if (request.load_date_from) {
-    items = items.filter(
-      (a) => a.load_date && a.load_date >= request.load_date_from!
-    );
-  }
-  if (request.load_date_to) {
-    items = items.filter(
-      (a) => a.load_date && a.load_date <= request.load_date_to!
-    );
-  }
-  if (request.is_available !== undefined) {
-    items = items.filter(
-      (a) => (a.status === "Active") === request.is_available
-    );
-  }
-  if (request.is_bidder !== undefined) {
-    items = items.filter((a) => a.is_bet_present === request.is_bidder);
-  }
-  if (request.price_from !== undefined) {
-    items = items.filter((a) => a.current_price >= request.price_from!);
-  }
-  if (request.price_to !== undefined) {
-    items = items.filter((a) => a.current_price <= request.price_to!);
-  }
-
-  const total = items.length;
-  const page = request.page ?? 1;
-  const perPage = request.per_page ?? 20;
-  const start = (page - 1) * perPage;
-  const paginated = items.slice(start, start + perPage);
-
-  return {
-    items: paginated.map((a) => ({
-      uuid: a.uuid,
-      cargo_num: a.cargo_num,
-      auc_type: a.auc_type,
-      status: a.status,
-      load_city: a.load_city,
-      unload_city: a.unload_city,
-      load_date: a.load_date,
-      unload_date: a.unload_date,
-      cargo_name: a.cargo_name,
-      cargo_weight: a.cargo_weight,
-      cargo_volume: a.cargo_volume,
-      body_type: a.body_type,
-      current_price: a.current_price,
-      price_per_km: a.price_per_km,
-      bet_step: a.bet_step,
-      bidder_status: a.bidder_status,
-      is_bet_present: a.is_bet_present,
-      primary_action: a.primary_action,
-    })),
-    total,
-    page,
-    per_page: perPage,
-  };
-}
+import type { AuctionDetail } from "@/shared/types";
+import { filterAuctions } from "./filter-auctions";
 
 const mockAuctions: AuctionDetail[] = [
   {
@@ -200,15 +113,26 @@ const mockAuctions: AuctionDetail[] = [
   } as AuctionDetail,
 ];
 
+function makeMap(auctions: AuctionDetail[]): Map<string, AuctionDetail> {
+  const map = new Map<string, AuctionDetail>();
+  for (const a of auctions) {
+    map.set(a.uuid, a);
+  }
+  return map;
+}
+
 describe("filterAuctions", () => {
   it("returns all auctions with no filters", () => {
-    const result = filterAuctions(mockAuctions, { page: 1, per_page: 20 });
+    const result = filterAuctions(makeMap(mockAuctions), {
+      page: 1,
+      per_page: 20,
+    });
     expect(result.total).toBe(3);
     expect(result.items).toHaveLength(3);
   });
 
   it("filters by cargo_num substring", () => {
-    const result = filterAuctions(mockAuctions, {
+    const result = filterAuctions(makeMap(mockAuctions), {
       page: 1,
       per_page: 20,
       cargo_num: "A24-0001",
@@ -218,7 +142,7 @@ describe("filterAuctions", () => {
   });
 
   it("filters by status", () => {
-    const result = filterAuctions(mockAuctions, {
+    const result = filterAuctions(makeMap(mockAuctions), {
       page: 1,
       per_page: 20,
       status: "Active",
@@ -228,7 +152,7 @@ describe("filterAuctions", () => {
   });
 
   it("filters by statuses array", () => {
-    const result = filterAuctions(mockAuctions, {
+    const result = filterAuctions(makeMap(mockAuctions), {
       page: 1,
       per_page: 20,
       statuses: ["Active", "Completed"],
@@ -237,7 +161,7 @@ describe("filterAuctions", () => {
   });
 
   it("filters by auc_type", () => {
-    const result = filterAuctions(mockAuctions, {
+    const result = filterAuctions(makeMap(mockAuctions), {
       page: 1,
       per_page: 20,
       auc_type: "Down",
@@ -247,7 +171,7 @@ describe("filterAuctions", () => {
   });
 
   it("filters by load_city", () => {
-    const result = filterAuctions(mockAuctions, {
+    const result = filterAuctions(makeMap(mockAuctions), {
       page: 1,
       per_page: 20,
       load_city: "Москва",
@@ -256,7 +180,7 @@ describe("filterAuctions", () => {
   });
 
   it("filters by unload_city", () => {
-    const result = filterAuctions(mockAuctions, {
+    const result = filterAuctions(makeMap(mockAuctions), {
       page: 1,
       per_page: 20,
       unload_city: "Казань",
@@ -265,7 +189,7 @@ describe("filterAuctions", () => {
   });
 
   it("filters by load_date_from", () => {
-    const result = filterAuctions(mockAuctions, {
+    const result = filterAuctions(makeMap(mockAuctions), {
       page: 1,
       per_page: 20,
       load_date_from: "2026-02-01",
@@ -278,7 +202,7 @@ describe("filterAuctions", () => {
   });
 
   it("filters by load_date_to", () => {
-    const result = filterAuctions(mockAuctions, {
+    const result = filterAuctions(makeMap(mockAuctions), {
       page: 1,
       per_page: 20,
       load_date_to: "2026-01-31",
@@ -288,7 +212,7 @@ describe("filterAuctions", () => {
   });
 
   it("filters by is_available=true", () => {
-    const result = filterAuctions(mockAuctions, {
+    const result = filterAuctions(makeMap(mockAuctions), {
       page: 1,
       per_page: 20,
       is_available: true,
@@ -298,7 +222,7 @@ describe("filterAuctions", () => {
   });
 
   it("filters by is_available=false", () => {
-    const result = filterAuctions(mockAuctions, {
+    const result = filterAuctions(makeMap(mockAuctions), {
       page: 1,
       per_page: 20,
       is_available: false,
@@ -307,7 +231,7 @@ describe("filterAuctions", () => {
   });
 
   it("filters by is_bidder", () => {
-    const result = filterAuctions(mockAuctions, {
+    const result = filterAuctions(makeMap(mockAuctions), {
       page: 1,
       per_page: 20,
       is_bidder: true,
@@ -317,7 +241,7 @@ describe("filterAuctions", () => {
   });
 
   it("filters by price_from", () => {
-    const result = filterAuctions(mockAuctions, {
+    const result = filterAuctions(makeMap(mockAuctions), {
       page: 1,
       per_page: 20,
       price_from: 150000,
@@ -326,7 +250,7 @@ describe("filterAuctions", () => {
   });
 
   it("filters by price_to", () => {
-    const result = filterAuctions(mockAuctions, {
+    const result = filterAuctions(makeMap(mockAuctions), {
       page: 1,
       per_page: 20,
       price_to: 100000,
@@ -336,14 +260,20 @@ describe("filterAuctions", () => {
   });
 
   it("supports pagination", () => {
-    const result = filterAuctions(mockAuctions, { page: 1, per_page: 2 });
+    const result = filterAuctions(makeMap(mockAuctions), {
+      page: 1,
+      per_page: 2,
+    });
     expect(result.total).toBe(3);
     expect(result.items).toHaveLength(2);
     expect(result.page).toBe(1);
   });
 
   it("returns empty on out-of-range page", () => {
-    const result = filterAuctions(mockAuctions, { page: 5, per_page: 20 });
+    const result = filterAuctions(makeMap(mockAuctions), {
+      page: 5,
+      per_page: 20,
+    });
     expect(result.total).toBe(3);
     expect(result.items).toHaveLength(0);
   });

@@ -1,61 +1,26 @@
+import { memo } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Card, Badge, Text, Group, Button, Stack } from "@mantine/core";
 import { useNavigate } from "@tanstack/react-router";
 import { fetchAuctionDetail } from "@/entities/auction";
 import type { AuctionListItem } from "@/shared/types";
-
-const actionLabels: Record<string, string> = {
-  make_bet: "Сделать ставку",
-  change_bet: "Изменить ставку",
-  view_bets: "Смотреть ставки",
-  disabled: "Недоступно",
-};
-const auctionTypeLabels: Record<string, string> = {
-  Request: "Заявка",
-  Up: "Повышение",
-  Down: "Понижение",
-  FixPrice: "Фикс. цена",
-};
-const auctionStatusLabels: Record<string, string> = {
-  Active: "Активен",
-  Completed: "Завершён",
-  Cancelled: "Отменён",
-  Draft: "Черновик",
-};
-const auctionTypeColors: Record<string, string> = {
-  Request: "blue",
-  Up: "green",
-  Down: "red",
-  FixPrice: "gray",
-};
-const statusColors: Record<string, string> = {
-  Active: "green",
-  Completed: "blue",
-  Cancelled: "red",
-  Draft: "gray",
-};
-const bidderStatusLabels: Record<string, string> = {
-  Leading: "Лидируете",
-  Losing: "Проигрываете",
-  Winner: "Победитель",
-  NotParticipating: "Не участвуете",
-  Outbid: "Перебита ставка",
-};
-
-function getBetAction(primaryAction: string) {
-  if (primaryAction === "view_bets")
-    return { search: { tab: "bets" as const } };
-  if (primaryAction === "make_bet" || primaryAction === "change_bet")
-    return { search: { action: "set-bet" as const } };
-  return null;
-}
-
-function formatPrice(price: number): string {
-  return new Intl.NumberFormat("ru-RU").format(price) + " ₽";
-}
+import {
+  actionLabels,
+  auctionTypeLabels,
+  auctionTypeColors,
+  auctionStatusLabels,
+  statusColors,
+  bidderStatusLabels,
+  formatPrice,
+  getBetAction,
+} from "@/shared/config";
 
 // eslint-disable-next-line complexity
-export function MobileCard({ auction }: { auction: AuctionListItem }) {
+const MobileCardInner = memo(function MobileCard({
+  auction,
+}: {
+  auction: AuctionListItem;
+}) {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 
@@ -182,4 +147,6 @@ export function MobileCard({ auction }: { auction: AuctionListItem }) {
       </Stack>
     </Card>
   );
-}
+});
+
+export const MobileCard = MobileCardInner;

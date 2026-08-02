@@ -13,8 +13,11 @@ import {
 } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import { useAuctionDetail } from "@/entities/auction";
-import { useSetBet } from "@/entities/bet";
-import { createBetFormSchema, type BetFormValues } from "@/features/set-bet";
+import { useSetBet } from "../model/bet.hooks";
+import {
+  createBetFormSchema,
+  type BetFormValues,
+} from "../model/bet-form.schema";
 import type { ValidationError } from "@/shared/types";
 
 interface BetFormProps {

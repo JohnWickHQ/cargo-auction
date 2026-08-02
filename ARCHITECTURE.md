@@ -3,6 +3,7 @@
 ## Overview
 
 Single-page application for cargo auctions. Frontend-only with MSW-mocked API.
+Follows FSD v2.1 with minimal layers: `app/` + `pages/` + `entities/` + `shared/`.
 
 ## Stack
 
@@ -18,19 +19,25 @@ Single-page application for cargo auctions. Frontend-only with MSW-mocked API.
 | API mock     | MSW v2                    |
 | Tests        | Vitest + Playwright       |
 
-## Module Structure (Feature-Sliced Design)
+## Module Structure (Feature-Sliced Design v2.1)
 
 ```
 src/
 ├── app/            # Entry point, providers (Mantine, Query, MSW, Router)
-├── pages/          # AuctionListPage, AuctionDetailPage
-├── widgets/        # auction-filters, auction-table (includes DesktopRow, MobileCard), auction-card (includes PriceBand, RouteInfo, CargoInfo, OrganizerInfo), bet-list, bet-form
-├── features/       # filter-auctions (Zod + URL sync), set-bet (form schema)
-├── entities/       # auction (API, hooks), bet (API, hooks, mutation)
-└── shared/         # API client, MSW handlers (store/seed/handlers), config, types, UI wrappers, Zustand store
+├── routes/         # TanStack Router route definitions
+├── pages/          # Page-level composition + all page-owned logic
+│   ├── auction-list/       # AuctionListPage, filters, table, pagination, filter schema
+│   └── auction-detail/     # AuctionDetailPage, auction card, bet form, bet list, bet logic
+├── entities/       # Reusable domain models (used by 2+ pages)
+│   └── auction/            # Auction API, hooks, types (shared by both pages)
+└── shared/         # Infrastructure with no business logic
+    ├── api/            # Fetch client, MSW handlers, store, seed, bet-logic, filter-auctions
+    ├── config/         # Constants, cities, labels, formatPrice
+    ├── types/          # auction.ts (core types + enums), bet.ts (bet types + validation errors)
+    └── ui/             # CitySelect, ColorSchemeToggle
 ```
 
-Import direction: inner layers cannot import from outer layers. `@/` → `src/`.
+**Import direction**: `app → pages → entities → shared`. No `widgets/` or `features/` layers — single-page components and single-consumer logic live in their owning pages (FSD v2.1 «Pages First» principle).
 
 ## Data Flow
 
@@ -44,7 +51,7 @@ URL search params ──→ Zod schema (safeParse) ──→ TanStack Query hook
 
 - **URL** is source of truth for filters
 - **TanStack Query** manages server state (auctions, auction detail, bets)
-- **Zustand** handles UI-only state (active tab, bet form visibility)
+- **Zustand** handles UI-only state (active tab, bet form visibility) — co-located with page
 - **MSW** intercepts fetch, operates on in-memory Map-based store
 
 ## Routes
@@ -78,7 +85,7 @@ URL search params ──→ Zod schema (safeParse) ──→ TanStack Query hook
 | --------- | ---------------------- | ------------------------------------------------------------------ |
 | Lint      | `npm run lint`         | ESLint type-aware, 0 errors required                               |
 | TypeCheck | `npm run typecheck`    | `strict`, `noUncheckedIndexedAccess`, `exactOptionalPropertyTypes` |
-| Tests     | `npm test`             | Vitest, 96 unit tests                                              |
+| Tests     | `npm test`             | Vitest, 103 unit tests (12 files)                                  |
 | E2E       | `npm run test:e2e`     | Playwright, 2 specs                                                |
 | Format    | `npm run format:check` | Prettier                                                           |
 | Dead code | `npm run knip`         | Knip, 0 issues required                                            |
@@ -87,7 +94,15 @@ URL search params ──→ Zod schema (safeParse) ──→ TanStack Query hook
 
 ## Component File Conventions
 
-- Large widgets decomposed into separate files in the same `ui/` directory:
-  - `auction-table/ui/` → `AuctionTable`, `DesktopRow`, `MobileCard`
-  - `auction-card/ui/` → `AuctionCard` (orchestrator), + `PriceBand`, `RouteInfo`, `CargoInfo`, `OrganizerInfo` (sub-components)
-- Sub-components not exported from widget barrel unless used externally
+- All React components end with `*.component.tsx`
+- Large components decomposed into separate files in the same `ui/` directory:
+  - `pages/auction-detail/ui/` → `AuctionCard`, `AuctionCardContent`, `PriceBand`, `RouteInfo`, `CargoInfo`, `OrganizerInfo`, `RoutePointTable`, `BetList`, `BetForm`
+  - `pages/auction-list/ui/` → `AuctionFilters`, `AuctionTable`, `DesktopRow`, `MobileCard`
+- Sub-components not exported from page barrel unless used externally
+
+## Shared Types
+
+Domain-split naming (FSD v2.1 Rule 4-4):
+
+- `shared/types/auction.ts` — `AuctionListItem`, `AuctionDetail`, request/response types, enum unions
+- `shared/types/bet.ts` — `Bet`, `BetsResponse`, `SetBetRequest/Response`, `ValidationError`

@@ -1,46 +1,12 @@
 import { describe, it, expect } from "vitest";
-import type { Bet } from "@/shared/types";
-import { VAT_RATE } from "@/shared/config";
-
-function rankBets(bets: Bet[], aucType: string): Bet[] {
-  const isUp = aucType === "Up" || aucType === "Request";
-  const sorted = [...bets].sort((a, b) =>
-    isUp ? b.price - a.price : a.price - b.price
-  );
-
-  let rank = 0;
-  sorted.forEach((b) => {
-    b.is_winner = false;
-    b.rank = b.is_cancelled ? null : ++rank;
-  });
-
-  const winner = sorted.find((b) => !b.is_cancelled);
-  if (winner) winner.is_winner = true;
-
-  return sorted;
-}
-
-function makeBet(price: number, carrier = "Перевозчик-1"): Bet {
-  return {
-    uuid: crypto.randomUUID(),
-    price,
-    price_with_vat: Math.round(price * (1 + VAT_RATE)),
-    price_without_vat: price,
-    carrier_name: carrier,
-    rank: 0,
-    is_winner: false,
-    is_cancelled: false,
-    cancel_reason: null,
-    created_at: new Date().toISOString(),
-  };
-}
+import { rankBets, createBet } from "./bet-logic";
 
 describe("bet ranking", () => {
   it("highest bid wins in Up auction", () => {
     const bets = [
-      makeBet(50000, "Перевозчик-1"),
-      makeBet(70000, "Перевозчик-2"),
-      makeBet(60000, "Вы"),
+      createBet(50000, "Перевозчик-1"),
+      createBet(70000, "Перевозчик-2"),
+      createBet(60000, "Вы"),
     ];
     const ranked = rankBets(bets, "Up");
 
@@ -56,9 +22,9 @@ describe("bet ranking", () => {
 
   it("lowest bid wins in Down auction", () => {
     const bets = [
-      makeBet(50000, "Перевозчик-1"),
-      makeBet(70000, "Перевозчик-2"),
-      makeBet(45000, "Вы"),
+      createBet(50000, "Перевозчик-1"),
+      createBet(70000, "Перевозчик-2"),
+      createBet(45000, "Вы"),
     ];
     const ranked = rankBets(bets, "Down");
 
@@ -70,9 +36,9 @@ describe("bet ranking", () => {
 
   it("new lower bid does not beat existing higher bid in Up auction", () => {
     const bets = [
-      makeBet(100000, "Перевозчик-4"),
-      makeBet(87500, "Вы"),
-      makeBet(87000, "Вы"),
+      createBet(100000, "Перевозчик-4"),
+      createBet(87500, "Вы"),
+      createBet(87000, "Вы"),
     ];
     const ranked = rankBets(bets, "Up");
 
@@ -87,9 +53,9 @@ describe("bet ranking", () => {
   });
 
   it("cancelled bets do not become winner", () => {
-    const cancelled = makeBet(50000);
+    const cancelled = createBet(50000);
     cancelled.is_cancelled = true;
-    const valid = makeBet(40000);
+    const valid = createBet(40000);
     const ranked = rankBets([cancelled, valid], "Up");
 
     expect(ranked[0]!.price).toBe(50000);

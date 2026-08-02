@@ -1,5 +1,20 @@
 import { useEffect, useState, type ReactNode } from "react";
 
+function MswSpinner() {
+  return (
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        height: "100vh",
+      }}
+    >
+      Загрузка MSW...
+    </div>
+  );
+}
+
 export function MswProvider({ children }: { children: ReactNode }) {
   const [ready, setReady] = useState(!import.meta.env.DEV);
 
@@ -12,19 +27,7 @@ export function MswProvider({ children }: { children: ReactNode }) {
   }, []);
 
   if (!ready) {
-    const Spinner = () => (
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "100vh",
-        }}
-      >
-        Загрузка MSW...
-      </div>
-    );
-    return <Spinner />;
+    return <MswSpinner />;
   }
 
   return <>{children}</>;

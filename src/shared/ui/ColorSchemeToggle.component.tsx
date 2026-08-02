@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { ActionIcon, useMantineColorScheme } from "@mantine/core";
 
 const SunIcon = () => (
@@ -40,7 +41,7 @@ const MoonIcon = () => (
   </svg>
 );
 
-export function ColorSchemeToggle() {
+export const ColorSchemeToggle = memo(function ColorSchemeToggle() {
   const { colorScheme, toggleColorScheme } = useMantineColorScheme();
 
   return (
@@ -54,4 +55,4 @@ export function ColorSchemeToggle() {
       {colorScheme === "dark" ? <SunIcon /> : <MoonIcon />}
     </ActionIcon>
   );
-}
+});

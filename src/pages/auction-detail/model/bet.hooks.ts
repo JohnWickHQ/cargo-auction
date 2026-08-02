@@ -1,13 +1,16 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  useSuspenseQuery,
+  useMutation,
+  useQueryClient,
+} from "@tanstack/react-query";
 import type { SetBetRequest, ValidationError } from "@/shared/types";
 import { ApiError } from "@/shared/api";
 import { fetchBets, postBet } from "./bet.api";
 
 export function useBets(auctionUuid: string) {
-  return useQuery({
+  return useSuspenseQuery({
     queryKey: ["bets", auctionUuid],
     queryFn: () => fetchBets(auctionUuid),
-    enabled: !!auctionUuid,
     retry: 1,
   });
 }

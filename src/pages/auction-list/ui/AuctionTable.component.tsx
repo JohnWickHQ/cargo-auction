@@ -1,74 +1,50 @@
+import { useMemo } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import {
-  Table,
-  Skeleton,
-  Alert,
-  Text,
-  Pagination,
-  Center,
-  Stack,
-  Button,
-} from "@mantine/core";
+import { Table, Text, Pagination, Center, Stack } from "@mantine/core";
 import { useMediaQuery } from "@mantine/hooks";
-import { IconAlertCircle, IconSearch } from "@tabler/icons-react";
+import { IconSearch } from "@tabler/icons-react";
 import { useAuctionList } from "@/entities/auction";
-import { useFiltersSync } from "@/features/filter-auctions";
+import { useFiltersSync } from "../model/use-filters-sync";
 import type { AuctionListRequest } from "@/shared/types";
+import { SuspenseBoundary } from "@/shared/ui";
 import { DesktopRow } from "./DesktopRow.component";
 import { MobileCard } from "./MobileCard.component";
 
-export function AuctionTable() {
+function AuctionTableInner() {
   const [filters, setFilters] = useFiltersSync();
   const isMobile = useMediaQuery("(max-width: 1050px)");
-  const queryClient = useQueryClient();
 
-  const { data, isLoading, isError, error } = useAuctionList({
-    ...filters,
-    page: filters.page ?? 1,
-    per_page: filters.per_page ?? 20,
-    is_available:
-      filters.is_available !== undefined
-        ? filters.is_available === "true"
-        : undefined,
-    is_bidder:
-      filters.is_bidder !== undefined
-        ? filters.is_bidder === "true"
-        : undefined,
-  } as AuctionListRequest);
+  const queryParams = useMemo<AuctionListRequest>(
+    // eslint-disable-next-line complexity
+    () => {
+      const params: AuctionListRequest = {
+        page: filters.page ?? 1,
+        per_page: filters.per_page ?? 20,
+      };
+      if (filters.cargo_num !== undefined) params.cargo_num = filters.cargo_num;
+      if (filters.status !== undefined) params.status = filters.status;
+      if (filters.statuses !== undefined) params.statuses = filters.statuses;
+      if (filters.auc_type !== undefined) params.auc_type = filters.auc_type;
+      if (filters.load_city !== undefined) params.load_city = filters.load_city;
+      if (filters.unload_city !== undefined)
+        params.unload_city = filters.unload_city;
+      if (filters.load_date_from !== undefined)
+        params.load_date_from = filters.load_date_from;
+      if (filters.load_date_to !== undefined)
+        params.load_date_to = filters.load_date_to;
+      if (filters.price_from !== undefined)
+        params.price_from = filters.price_from;
+      if (filters.price_to !== undefined) params.price_to = filters.price_to;
+      if (filters.is_available !== undefined)
+        params.is_available = filters.is_available === "true";
+      if (filters.is_bidder !== undefined)
+        params.is_bidder = filters.is_bidder === "true";
+      return params;
+    },
+    [filters]
+  );
 
-  if (isLoading) {
-    return (
-      <Stack>
-        {Array.from({ length: 5 }).map((_, i) => (
-          <Skeleton key={i} height={isMobile ? 140 : 50} radius="sm" />
-        ))}
-      </Stack>
-    );
-  }
-
-  if (isError) {
-    return (
-      <Alert
-        icon={<IconAlertCircle size={16} />}
-        title="Ошибка загрузки"
-        color="red"
-        variant="filled"
-      >
-        <Text size="sm">{(error as Error).message}</Text>
-        <Button
-          variant="white"
-          color="red"
-          size="xs"
-          mt="sm"
-          onClick={() =>
-            void queryClient.refetchQueries({ queryKey: ["auctions"] })
-          }
-        >
-          Повторить
-        </Button>
-      </Alert>
-    );
-  }
+  const { data } = useAuctionList(queryParams);
 
   if (!data || data.items.length === 0) {
     return (
@@ -129,5 +105,19 @@ export function AuctionTable() {
         </Center>
       )}
     </Stack>
+  );
+}
+
+export function AuctionTable() {
+  const queryClient = useQueryClient();
+
+  return (
+    <SuspenseBoundary
+      onReset={() =>
+        void queryClient.refetchQueries({ queryKey: ["auctions"] })
+      }
+    >
+      <AuctionTableInner />
+    </SuspenseBoundary>
   );
 }

@@ -8,15 +8,22 @@ import {
   Button,
   Group,
   ActionIcon,
+  Skeleton,
 } from "@mantine/core";
 import { IconArrowLeft } from "@tabler/icons-react";
+import { useQueryClient } from "@tanstack/react-query";
 import { useAuctionDetail } from "@/entities/auction";
-import { AuctionCard } from "@/widgets/auction-card";
-import { BetList } from "@/widgets/bet-list";
-import { BetForm } from "@/widgets/bet-form";
-import { useUiStore } from "@/shared/lib";
+import { AuctionCard } from "./AuctionCard.component";
+import { BetList } from "./BetList.component";
+import { BetForm } from "./BetForm.component";
+import { useUiStore } from "../model/use-ui-store";
+import { SuspenseBoundary } from "@/shared/ui";
 
-export function AuctionDetailPage() {
+function DetailPageFallback() {
+  return <Skeleton height={400} radius="sm" />;
+}
+
+function AuctionDetailPageInner() {
   const { auctionUuid } = useParams({ from: "/auctions/$auctionUuid" });
   const { data: auction } = useAuctionDetail(auctionUuid);
   const search = useSearch({ from: "/auctions/$auctionUuid" });
@@ -78,11 +85,9 @@ export function AuctionDetailPage() {
 
         <Tabs.Panel value="detail">
           <Stack gap="lg">
-            <AuctionCard />
+            <AuctionCard onBetClick={openBetForm} />
 
-            {auction?.hide_bets_history ? (
-              <></>
-            ) : (
+            {auction.hide_bets_history ? null : (
               <>
                 <Title order={3}>История ставок</Title>
                 <BetList />
@@ -92,7 +97,7 @@ export function AuctionDetailPage() {
         </Tabs.Panel>
 
         <Tabs.Panel value="bets">
-          {auction?.hide_bets_history ? (
+          {auction.hide_bets_history ? (
             <Box>
               <Title order={4} c="dimmed" ta="center" py="xl">
                 История ставок скрыта
@@ -102,7 +107,7 @@ export function AuctionDetailPage() {
             <Stack gap="lg">
               <Group justify="space-between">
                 <Title order={3}>История ставок</Title>
-                {auction?.trading.can_set_bet && (
+                {auction.trading.can_set_bet && (
                   <Button onClick={openBetForm} size="sm">
                     {auction.is_bet_present
                       ? "Изменить ставку"
@@ -118,5 +123,23 @@ export function AuctionDetailPage() {
 
       <BetForm opened={betFormOpened} onClose={handleCloseBetForm} />
     </>
+  );
+}
+
+export function AuctionDetailPage() {
+  const { auctionUuid } = useParams({ from: "/auctions/$auctionUuid" });
+  const queryClient = useQueryClient();
+
+  return (
+    <SuspenseBoundary
+      loadingFallback={<DetailPageFallback />}
+      onReset={() =>
+        void queryClient.refetchQueries({
+          queryKey: ["auction", auctionUuid],
+        })
+      }
+    >
+      <AuctionDetailPageInner />
+    </SuspenseBoundary>
   );
 }

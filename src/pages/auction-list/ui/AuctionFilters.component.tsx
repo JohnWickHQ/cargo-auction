@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import {
   Box,
   Button,
@@ -13,47 +13,35 @@ import {
   Divider,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
-import { DatePickerInput } from "@mantine/dates";
+import { DatePickerInput } from "@/shared/ui";
 import { IconFilter, IconX } from "@tabler/icons-react";
-import "@mantine/dates/styles.css";
 import { AuctionTypeValues, AuctionStatusValues } from "@/shared/types";
-import {
-  useFiltersSync,
-  type AuctionFilters,
-} from "@/features/filter-auctions";
+import { useFiltersSync } from "../model/use-filters-sync";
+import type { AuctionFilters } from "../model/filters.schema";
 import { CitySelect } from "@/shared/ui";
-
-const statusLabels: Record<string, string> = {
-  Active: "Активен",
-  Completed: "Завершён",
-  Cancelled: "Отменён",
-  Draft: "Черновик",
-};
-const typeLabels: Record<string, string> = {
-  Request: "Заявка",
-  Up: "Повышение",
-  Down: "Понижение",
-  FixPrice: "Фикс. цена",
-};
+import { auctionStatusLabels, auctionTypeLabels } from "@/shared/config";
 
 const statusData = AuctionStatusValues.map((s) => ({
   value: s,
-  label: statusLabels[s]!,
+  label: auctionStatusLabels[s]!,
 }));
 const typeData = AuctionTypeValues.map((t) => ({
   value: t,
-  label: typeLabels[t]!,
+  label: auctionTypeLabels[t]!,
 }));
 
 // eslint-disable-next-line complexity
 export function AuctionFilters() {
   const [filters, setFilters] = useFiltersSync();
   const [opened, { toggle }] = useDisclosure(true);
+  const [isPending, startTransition] = useTransition();
 
   const [local, setLocal] = useState<AuctionFilters>(filters);
 
   const apply = () => {
-    setFilters({ ...local, page: 1 });
+    startTransition(() => {
+      setFilters({ ...local, page: 1 });
+    });
   };
 
   const clear = () => {
@@ -80,6 +68,7 @@ export function AuctionFilters() {
           onClick={toggle}
         >
           Фильтры {hasActive ? "(активны)" : ""}
+          {isPending ? "…" : ""}
         </Button>
         {hasActive && (
           <Button
@@ -158,7 +147,7 @@ export function AuctionFilters() {
               value={
                 local.load_date_from ? new Date(local.load_date_from) : null
               }
-              onChange={(v) =>
+              onChange={(v: Date | null) =>
                 setLocal({
                   ...local,
                   load_date_from: v ? v.toISOString().split("T")[0] : undefined,
@@ -172,7 +161,7 @@ export function AuctionFilters() {
             <DatePickerInput
               label="Дата погрузки до"
               value={local.load_date_to ? new Date(local.load_date_to) : null}
-              onChange={(v) =>
+              onChange={(v: Date | null) =>
                 setLocal({
                   ...local,
                   load_date_to: v ? v.toISOString().split("T")[0] : undefined,

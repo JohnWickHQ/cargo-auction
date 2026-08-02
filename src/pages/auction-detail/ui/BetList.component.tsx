@@ -1,60 +1,32 @@
 import { useParams } from "@tanstack/react-router";
-import { useBets } from "@/entities/bet";
+import { useBets } from "../model/bet.hooks";
 import {
   Stack,
   Table,
   Skeleton,
-  Alert,
   Center,
   Text,
   Badge,
   Group,
-  Button,
 } from "@mantine/core";
-import { IconAlertCircle, IconCoinOff } from "@tabler/icons-react";
+import { IconCoinOff } from "@tabler/icons-react";
 import { useQueryClient } from "@tanstack/react-query";
+import { SuspenseBoundary } from "@/shared/ui";
+import { formatPrice } from "@/shared/config";
 
-function formatPrice(price: number): string {
-  return new Intl.NumberFormat("ru-RU").format(price) + " ₽";
+function BetListFallback() {
+  return (
+    <Stack>
+      {Array.from({ length: 3 }).map((_, i) => (
+        <Skeleton key={i} height={60} />
+      ))}
+    </Stack>
+  );
 }
 
-export function BetList() {
+function BetListInner() {
   const { auctionUuid } = useParams({ from: "/auctions/$auctionUuid" });
-  const queryClient = useQueryClient();
-  const { data, isLoading, isError, error } = useBets(auctionUuid);
-
-  if (isLoading) {
-    return (
-      <Stack>
-        {Array.from({ length: 3 }).map((_, i) => (
-          <Skeleton key={i} height={60} />
-        ))}
-      </Stack>
-    );
-  }
-
-  if (isError) {
-    return (
-      <Alert
-        icon={<IconAlertCircle size={16} />}
-        title="Ошибка загрузки"
-        color="red"
-      >
-        <Text size="sm">{(error as Error).message}</Text>
-        <Button
-          variant="white"
-          color="red"
-          size="xs"
-          mt="sm"
-          onClick={() =>
-            void queryClient.refetchQueries({ queryKey: ["bets", auctionUuid] })
-          }
-        >
-          Повторить
-        </Button>
-      </Alert>
-    );
-  }
+  const { data } = useBets(auctionUuid);
 
   if (!data || data.items.length === 0) {
     return (
@@ -124,5 +96,21 @@ export function BetList() {
         </Table.Tbody>
       </Table>
     </Stack>
+  );
+}
+
+export function BetList() {
+  const { auctionUuid } = useParams({ from: "/auctions/$auctionUuid" });
+  const queryClient = useQueryClient();
+
+  return (
+    <SuspenseBoundary
+      loadingFallback={<BetListFallback />}
+      onReset={() =>
+        void queryClient.refetchQueries({ queryKey: ["bets", auctionUuid] })
+      }
+    >
+      <BetListInner />
+    </SuspenseBoundary>
   );
 }

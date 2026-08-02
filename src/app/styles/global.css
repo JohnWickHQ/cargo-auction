@@ -5,3 +5,8 @@ body {
     var(--mantine-color-dark-8)
   );
 }
+
+.content-visibility-auto {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 50px;
+}

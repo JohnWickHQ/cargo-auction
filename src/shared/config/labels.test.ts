@@ -1,37 +1,11 @@
 import { describe, it, expect } from "vitest";
-
-const actionLabels: Record<string, string> = {
-  make_bet: "Сделать ставку",
-  change_bet: "Изменить ставку",
-  view_bets: "Смотреть ставки",
-  disabled: "Недоступно",
-};
-
-const auctionTypeLabels: Record<string, string> = {
-  Request: "Заявка",
-  Up: "Повышение",
-  Down: "Понижение",
-  FixPrice: "Фикс. цена",
-};
-
-const auctionStatusLabels: Record<string, string> = {
-  Active: "Активен",
-  Completed: "Завершён",
-  Cancelled: "Отменён",
-  Draft: "Черновик",
-};
-
-const bidderStatusLabels: Record<string, string> = {
-  Leading: "Лидируете",
-  Losing: "Проигрываете",
-  Winner: "Победитель",
-  NotParticipating: "Не участвуете",
-  Outbid: "Перебита ставка",
-};
-
-function formatPrice(price: number): string {
-  return new Intl.NumberFormat("ru-RU").format(price) + " ₽";
-}
+import {
+  actionLabels,
+  auctionTypeLabels,
+  auctionStatusLabels,
+  bidderStatusLabels,
+  formatPrice,
+} from "@/shared/config";
 
 describe("action labels", () => {
   it("maps make_bet to Russian", () => {
@@ -78,7 +52,7 @@ describe("bidder status labels", () => {
 
 describe("formatPrice", () => {
   it("formats integer price with ₽", () => {
-    expect(formatPrice(150000)).toBe("150\xa0000 ₽"); // non-breaking space from Intl
+    expect(formatPrice(150000)).toBe("150\xa0000 ₽");
   });
 
   it("formats zero", () => {

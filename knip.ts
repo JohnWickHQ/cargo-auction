@@ -9,7 +9,6 @@ const config: KnipConfig = {
   ignore: [
     // Barrel re-exports — types consumed through index.ts
     "src/entities/auction/index.ts",
-    "src/entities/bet/index.ts",
   ],
   ignoreDependencies: ["postcss-preset-mantine", "postcss-simple-vars"],
 };

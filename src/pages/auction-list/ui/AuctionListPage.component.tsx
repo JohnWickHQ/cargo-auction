@@ -1,5 +1,5 @@
-import { AuctionFilters } from "@/widgets/auction-filters";
-import { AuctionTable } from "@/widgets/auction-table";
+import { AuctionFilters } from "./AuctionFilters.component";
+import { AuctionTable } from "./AuctionTable.component";
 
 export function AuctionListPage() {
   return (
