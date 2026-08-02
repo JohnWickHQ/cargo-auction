@@ -8,7 +8,7 @@
 ## How To Work In This Repo
 
 - All React components end with `*.component.tsx`
-- Project uses Feature-Sliced Design: `app/` → `pages/` → `widgets/` → `features/` → `entities/` → `shared/`
+- Project uses Feature-Sliced Design: `app/` → `routes/` → `pages/` → `entities/` → `shared/`
 - Import direction: inner layers cannot import from outer layers
 - `@/` alias resolves to `src/`
 
@@ -16,7 +16,7 @@
 
 ```
 npm run dev        # start dev server
-npm test           # unit tests (vitest, 96 tests)
+npm test           # unit tests (vitest, 103 tests)
 npm run test:e2e   # e2e tests (playwright)
 npm run build      # production build
 npm run finish     # full static check: lint → typecheck → test → format → knip → build

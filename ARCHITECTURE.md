@@ -3,7 +3,7 @@
 ## Overview
 
 Single-page application for cargo auctions. Frontend-only with MSW-mocked API.
-Follows FSD v2.1 with minimal layers: `app/` + `pages/` + `entities/` + `shared/`.
+Follows FSD v2.1 with minimal layers: `app/` → `routes/` → `pages/` → `entities/` → `shared/`.
 
 ## Stack
 
@@ -29,12 +29,13 @@ src/
 │   ├── auction-list/       # AuctionListPage, filters, table, pagination, filter schema
 │   └── auction-detail/     # AuctionDetailPage, auction card, bet form, bet list, bet logic
 ├── entities/       # Reusable domain models (used by 2+ pages)
-│   └── auction/            # Auction API, hooks, types (shared by both pages)
+│   └── auction/            # Auction API, hooks
 └── shared/         # Infrastructure with no business logic
-    ├── api/            # Fetch client, MSW handlers, store, seed, bet-logic, filter-auctions
-    ├── config/         # Constants, cities, labels, formatPrice
-    ├── types/          # auction.ts (core types + enums), bet.ts (bet types + validation errors)
-    └── ui/             # CitySelect, ColorSchemeToggle
+    ├── api/            # Fetch client, MSW handlers, store, seed, bet-logic, filter-auctions, request-schemas
+    ├── config/         # Constants, cities, labels, bet-actions, auction-constants, date-utils, formatters
+    ├── lib/            # Utilities: id (uuid), bet-validation, type-guards
+    ├── types/          # auction.ts (core types), bet.ts (bet types + validation errors)
+    └── ui/             # CitySelect, ColorSchemeToggle, DatePickerInput, SuspenseBoundary
 ```
 
 **Import direction**: `app → routes → pages → entities → shared`. No `widgets/` or `features/` layers — single-page components and single-consumer logic live in their owning pages (FSD v2.1 «Pages First» principle).
@@ -50,9 +51,9 @@ URL search params ──→ Zod schema (safeParse) ──→ TanStack Query hook
 ```
 
 - **URL** is source of truth for filters
-- **TanStack Query** manages server state (auctions, auction detail, bets)
+- **TanStack Query** manages server state (auctions, auction detail, bets) via `useSuspenseQuery`
 - **Zustand** handles UI-only state (active tab, bet form visibility) — co-located with page
-- **MSW** intercepts fetch, operates on in-memory Map-based store
+- **MSW** intercepts fetch, operates on in-memory Map-based store (lazy-init via `getStore()`)
 
 ## Routes
 
@@ -70,6 +71,8 @@ URL search params ──→ Zod schema (safeParse) ──→ TanStack Query hook
 | GET    | `/api/v1/auctions/:uuid`      | Auction detail                    |
 | GET    | `/api/v1/auctions/:uuid/bets` | Bet history                       |
 | POST   | `/api/v1/auctions/:uuid/bets` | Place a bet                       |
+
+Request bodies for POST endpoints validated via Zod schemas (`request-schemas.ts`).
 
 ## Key Invariants
 
@@ -92,17 +95,25 @@ URL search params ──→ Zod schema (safeParse) ──→ TanStack Query hook
 | Build     | `npm run build`        | Vite, must succeed                                                 |
 | Full      | `npm run finish`       | All of the above combined                                          |
 
+## Suspense + Error Handling
+
+Data components wrap in `SuspenseBoundary` (Suspense + ErrorBoundary + QueryErrorResetBoundary) defined in `shared/ui/SuspenseBoundary.component.tsx`. Loading states use Skeleton fallbacks; errors show Alert with retry button.
+
 ## Component File Conventions
 
 - All React components end with `*.component.tsx`
+- Pure presentational components wrapped in `React.memo`
 - Large components decomposed into separate files in the same `ui/` directory:
   - `pages/auction-detail/ui/` → `AuctionCard`, `AuctionCardContent`, `PriceBand`, `RouteInfo`, `CargoInfo`, `OrganizerInfo`, `RoutePointTable`, `BetList`, `BetForm`
   - `pages/auction-list/ui/` → `AuctionFilters`, `AuctionTable`, `DesktopRow`, `MobileCard`
 - Sub-components not exported from page barrel unless used externally
+- Props use narrow interfaces (e.g. `RouteInfoProps`, `CargoInfoProps`) rather than full entity types
 
 ## Shared Types
 
 Domain-split naming (FSD v2.1 Rule 4-4):
 
-- `shared/types/auction.ts` — `AuctionListItem`, `AuctionDetail`, request/response types, enum unions
+- `shared/types/auction.ts` — `AuctionListItem`, `AuctionDetail`, request/response types
 - `shared/types/bet.ts` — `Bet`, `BetsResponse`, `SetBetRequest/Response`, `ValidationError`
+
+Runtime constants (`AuctionTypeValues`, `AuctionStatusValues`) live in `shared/config/auction-constants.ts`.

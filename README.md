@@ -25,7 +25,7 @@ npm run dev
 | Команда                | Назначение                                                     |
 | ---------------------- | -------------------------------------------------------------- |
 | `npm run dev`          | Dev-сервер на localhost:5173                                   |
-| `npm test`             | Unit-тесты (Vitest, 96 тестов)                                 |
+| `npm test`             | Unit-тесты (Vitest, 103 теста)                                 |
 | `npm run test:e2e`     | e2e-тесты (Playwright)                                         |
 | `npm run build`        | Production-сборка в `dist/`                                    |
 | `npm run lint`         | ESLint (type-aware, 0 ошибок)                                  |
@@ -59,11 +59,10 @@ npm run dev
 ```text
 src/
 ├── app/            # Точка входа, провайдеры (Mantine, Query, MSW, Router)
-├── pages/          # AuctionListPage, AuctionDetailPage
-├── widgets/        # auction-filters, auction-table, auction-card, bet-list, bet-form
-├── features/       # filter-auctions (Zod + URL-синхронизация), set-bet (схема формы)
-├── entities/       # auction (API, хуки), bet (API, хуки, mutation)
-└── shared/         # API-клиент, MSW-хендлеры (store + seed), конфигурация, типы, UI, Zustand-стор
+├── routes/         # Определения роутов TanStack Router
+├── pages/          # Страницы со всей логикой: auction-list, auction-detail
+├── entities/       # Переиспользуемые доменные модели: auction (API, хуки)
+└── shared/         # Инфраструктура: API-клиент, MSW (handlers, store, seed), конфигурация, lib (uuid, валидация), типы, UI
 ```
 
 Feature-Sliced Design: внутренние слои не могут импортировать из внешних. `@/` → `src/`.
