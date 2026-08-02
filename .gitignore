@@ -9,3 +9,4 @@ pnpm-workspace.yaml
 test-results/
 playwright-report/
 coverage/
+.idea
