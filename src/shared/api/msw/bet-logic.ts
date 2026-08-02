@@ -22,17 +22,21 @@ export function createBet(price: number, carrierName = "Перевозчик-1")
   };
 }
 
+function cloneBet(b: Bet): Bet {
+  return { ...b };
+}
+
 export function rankBets(bets: Bet[], aucType: AuctionType): Bet[] {
   const isUp = aucType === "Up" || aucType === "Request";
-  const sorted = [...bets].sort((a, b) =>
-    isUp ? b.price - a.price : a.price - b.price
-  );
+  const sorted = [...bets]
+    .map(cloneBet)
+    .sort((a, b) => (isUp ? b.price - a.price : a.price - b.price));
 
   let rank = 0;
-  sorted.forEach((b) => {
+  for (const b of sorted) {
     b.is_winner = false;
     b.rank = b.is_cancelled ? null : ++rank;
-  });
+  }
 
   const winner = sorted.find((b) => !b.is_cancelled);
   if (winner) winner.is_winner = true;

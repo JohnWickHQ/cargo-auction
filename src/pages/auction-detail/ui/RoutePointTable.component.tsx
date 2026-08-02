@@ -21,8 +21,8 @@ export const RoutePointTable = memo(function RoutePointTable({
         </Table.Tr>
       </Table.Thead>
       <Table.Tbody>
-        {routePoints.map((point, i) => (
-          <Table.Tr key={i}>
+        {routePoints.map((point) => (
+          <Table.Tr key={`${point.type}-${point.city}-${point.date}`}>
             <Table.Td>
               {point.type === "loading" ? "Погрузка" : "Разгрузка"}
             </Table.Td>

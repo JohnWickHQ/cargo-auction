@@ -1,3 +1,8 @@
+/** Returns true if price is a multiple of betStep within 0.001 tolerance. */
+function isMultipleOf(price: number, step: number): boolean {
+  return Math.abs(Math.round(price / step) * step - price) < 0.001;
+}
+
 export function validateBetPrice(
   price: number,
   {
@@ -9,14 +14,13 @@ export function validateBetPrice(
   if (!price || price <= 0) {
     return "Цена обязательна и должна быть больше 0";
   }
-  if (minPrice && price < minPrice) {
+  if (minPrice !== null && minPrice !== undefined && price < minPrice) {
     return `Минимальная цена: ${minPrice}`;
   }
-  if (maxPrice && price > maxPrice) {
+  if (maxPrice !== null && maxPrice !== undefined && price > maxPrice) {
     return `Максимальная цена: ${maxPrice}`;
   }
-  const deviation = Math.abs(Math.round(price / betStep) * betStep - price);
-  if (deviation >= 0.001) {
+  if (!isMultipleOf(price, betStep)) {
     return `Шаг ставки: ${betStep}`;
   }
   return null;

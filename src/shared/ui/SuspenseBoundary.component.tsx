@@ -1,4 +1,4 @@
-import { Suspense, Component, type ReactNode } from "react";
+import { Suspense, Component, useCallback, type ReactNode } from "react";
 import { Alert, Button, Skeleton, Stack, Text } from "@mantine/core";
 import { IconAlertCircle } from "@tabler/icons-react";
 import { QueryErrorResetBoundary } from "@tanstack/react-query";
@@ -6,7 +6,7 @@ import { QueryErrorResetBoundary } from "@tanstack/react-query";
 interface SuspenseBoundaryProps {
   children: ReactNode;
   loadingFallback?: ReactNode;
-  errorFallback?: (reset: () => void) => ReactNode;
+  errorFallback?: (error: Error, reset: () => void) => ReactNode;
   onReset?: () => void;
 }
 
@@ -34,7 +34,7 @@ function DefaultErrorFallback({
       color="red"
       variant="filled"
     >
-      <Text size="sm">{error.message}</Text>
+      <Text size="sm">{error.message || "Неизвестная ошибка"}</Text>
       <Button variant="white" color="red" size="xs" mt="sm" onClick={reset}>
         Повторить
       </Button>
@@ -48,16 +48,18 @@ export function SuspenseBoundary({
   errorFallback,
   onReset,
 }: SuspenseBoundaryProps) {
+  const defaultErrorFallback = useCallback(
+    (error: Error, resetCb: () => void) => (
+      <DefaultErrorFallback error={error} reset={resetCb} />
+    ),
+    []
+  );
+
   return (
     <QueryErrorResetBoundary>
       {({ reset }) => (
         <PageErrorBoundary
-          errorFallback={
-            errorFallback ??
-            ((resetCb) => (
-              <DefaultErrorFallback error={new Error("")} reset={resetCb} />
-            ))
-          }
+          errorFallback={errorFallback ?? defaultErrorFallback}
           onReset={reset}
           outerOnReset={onReset}
         >
@@ -72,7 +74,7 @@ export function SuspenseBoundary({
 
 interface PageErrorBoundaryProps {
   children: ReactNode;
-  errorFallback?: (reset: () => void) => ReactNode;
+  errorFallback?: (error: Error, reset: () => void) => ReactNode;
   onReset?: () => void;
   outerOnReset?: (() => void) | undefined;
 }
@@ -103,7 +105,7 @@ class PageErrorBoundary extends Component<
   render() {
     if (this.state.error) {
       if (this.props.errorFallback) {
-        return this.props.errorFallback(this.handleReset);
+        return this.props.errorFallback(this.state.error, this.handleReset);
       }
 
       return (

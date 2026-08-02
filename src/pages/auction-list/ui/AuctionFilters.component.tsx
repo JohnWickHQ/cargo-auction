@@ -1,4 +1,4 @@
-import { useState, useTransition } from "react";
+import { useState, useTransition, useEffect } from "react";
 import {
   Box,
   Button,
@@ -19,7 +19,12 @@ import { AuctionTypeValues, AuctionStatusValues } from "@/shared/config";
 import { useFiltersSync } from "../model/use-filters-sync";
 import type { AuctionFilters } from "../model/filters.schema";
 import { CitySelect } from "@/shared/ui";
-import { auctionStatusLabels, auctionTypeLabels } from "@/shared/config";
+import {
+  auctionStatusLabels,
+  auctionTypeLabels,
+  orUndefined,
+  toDateFilter,
+} from "@/shared/config";
 
 const statusData = AuctionStatusValues.map((s) => ({
   value: s,
@@ -38,6 +43,10 @@ export function AuctionFilters() {
 
   const [local, setLocal] = useState<AuctionFilters>(filters);
 
+  useEffect(() => {
+    setLocal(filters);
+  }, [filters]);
+
   const apply = () => {
     startTransition(() => {
       setFilters({ ...local, page: 1 });
@@ -50,14 +59,12 @@ export function AuctionFilters() {
     setFilters(empty, "replace");
   };
 
-  const hasActive = Object.entries(filters).some(
-    ([k, v]) =>
-      k !== "page" &&
-      k !== "per_page" &&
-      v !== undefined &&
-      v !== null &&
-      v !== ""
-  );
+  const hasActive = Object.entries(filters).some(([k, v]) => {
+    if (k === "page" || k === "per_page") return false;
+    if (v === undefined || v === null || v === "") return false;
+    if (Array.isArray(v)) return v.length > 0;
+    return true;
+  });
 
   return (
     <Box mb="md">
@@ -90,7 +97,7 @@ export function AuctionFilters() {
               label="Номер заявки"
               value={local.cargo_num ?? ""}
               onChange={(e) =>
-                setLocal({ ...local, cargo_num: e.target.value || undefined })
+                setLocal({ ...local, cargo_num: orUndefined(e.target.value) })
               }
             />
           </Grid.Col>
@@ -182,10 +189,7 @@ export function AuctionFilters() {
               label="Цена от"
               value={local.price_from ?? ""}
               onChange={(v) =>
-                setLocal({
-                  ...local,
-                  price_from: typeof v === "number" ? v : undefined,
-                })
+                setLocal({ ...local, load_date_from: toDateFilter(v) })
               }
               min={0}
             />
@@ -195,10 +199,7 @@ export function AuctionFilters() {
               label="Цена до"
               value={local.price_to ?? ""}
               onChange={(v) =>
-                setLocal({
-                  ...local,
-                  price_to: typeof v === "number" ? v : undefined,
-                })
+                setLocal({ ...local, load_date_to: toDateFilter(v) })
               }
               min={0}
             />

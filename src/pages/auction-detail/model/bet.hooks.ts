@@ -3,8 +3,9 @@ import {
   useMutation,
   useQueryClient,
 } from "@tanstack/react-query";
-import type { SetBetRequest, ValidationError } from "@/shared/types";
+import type { SetBetRequest } from "@/shared/types";
 import { ApiError } from "@/shared/api";
+import { isValidationError } from "@/shared/lib";
 import { fetchBets, postBet } from "./bet.api";
 
 export function useBets(auctionUuid: string) {
@@ -29,8 +30,9 @@ export function useSetBet(auctionUuid: string) {
     },
     onError: (error: Error) => {
       if (error instanceof ApiError && error.status === 422) {
-        const validationError = error.body as ValidationError;
-        throw validationError;
+        if (isValidationError(error.body)) {
+          throw error.body;
+        }
       }
     },
     retry: 0,

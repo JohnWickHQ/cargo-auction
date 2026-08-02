@@ -70,11 +70,13 @@ describe("MSW store integration", () => {
 
     const ranked = rankBets(betList, auction.auc_type);
     applyWinStatus(ranked, auction);
+    store.bets.set(auction.uuid, ranked);
 
-    expect(betList.length).toBe(1);
-    expect(betList[0]!.carrier_name).toBe("Вы");
-    expect(betList[0]!.is_winner).toBe(true);
-    expect(betList[0]!.rank).toBe(1);
+    const stored = store.bets.get(auction.uuid)!;
+    expect(stored.length).toBe(1);
+    expect(stored[0]!.carrier_name).toBe("Вы");
+    expect(stored[0]!.is_winner).toBe(true);
+    expect(stored[0]!.rank).toBe(1);
     expect(auction.current_price).toBe(150500);
     expect(auction.bidder_status).toBe("Leading");
     expect(auction.is_bet_present).toBe(true);

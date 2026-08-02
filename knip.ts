@@ -7,8 +7,9 @@ const config: KnipConfig = {
   },
   project: ["src/**/*.{ts,tsx}"],
   ignore: [
-    // Barrel re-exports — types consumed through index.ts
     "src/entities/auction/index.ts",
+    "src/pages/auction-list/model/use-filters-sync.ts",
+    "src/shared/api/msw/handlers.ts",
   ],
   ignoreDependencies: ["postcss-preset-mantine", "postcss-simple-vars"],
 };

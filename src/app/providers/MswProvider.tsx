@@ -20,9 +20,13 @@ export function MswProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (import.meta.env.DEV) {
-      void import("@/shared/api/msw/browser").then(({ initMsw }) => {
-        void initMsw().then(() => setReady(true));
-      });
+      void import("@/shared/api/msw/browser")
+        .then(({ initMsw }) => initMsw())
+        .then(() => setReady(true))
+        .catch((err: unknown) => {
+          console.error("MSW failed to initialize:", err);
+          setReady(true);
+        });
     }
   }, []);
 

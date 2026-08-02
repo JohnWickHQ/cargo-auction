@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useCallback } from "react";
 import { useParams } from "@tanstack/react-router";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -18,8 +18,8 @@ import {
   createBetFormSchema,
   type BetFormValues,
 } from "../model/bet-form.schema";
-import type { ValidationError } from "@/shared/types";
 import type { AuctionType } from "@/shared/types";
+import { isValidationError } from "@/shared/lib";
 
 interface BetFormProps {
   opened: boolean;
@@ -85,15 +85,12 @@ export function BetForm({ opened, onClose }: BetFormProps) {
       reset({ price: data.price });
       onClose();
     } catch (err: unknown) {
-      const validationErr = err as ValidationError;
-      if (
-        validationErr?.error === "VALIDATION_ERROR" &&
-        validationErr.details
-      ) {
-        for (const detail of validationErr.details) {
+      if (isValidationError(err)) {
+        for (const detail of err.details) {
           setError("price", { message: detail.message });
         }
       } else {
+        console.error("Bet submission failed:", err);
         notifications.show({
           title: "Ошибка",
           message: "Не удалось разместить ставку",
@@ -103,7 +100,17 @@ export function BetForm({ opened, onClose }: BetFormProps) {
     }
   };
 
-  const defaultPrice = getDefaultPrice(auction.auc_type, auction.trading);
+  const defaultPrice = useMemo(
+    () => getDefaultPrice(auction.auc_type, auction.trading),
+    [auction.auc_type, auction.trading]
+  );
+
+  const submitHandler = useCallback(
+    (e: React.FormEvent) => {
+      void handleSubmit(onSubmit)(e);
+    },
+    [handleSubmit, onSubmit]
+  );
 
   return (
     <Modal
@@ -113,11 +120,7 @@ export function BetForm({ opened, onClose }: BetFormProps) {
       centered
       size="md"
     >
-      <form
-        onSubmit={(e) => {
-          void handleSubmit(onSubmit)(e);
-        }}
-      >
+      <form onSubmit={submitHandler}>
         <Stack>
           {auction.trading.min_price !== null && (
             <Text size="sm" c="dimmed">
@@ -159,8 +162,9 @@ export function BetForm({ opened, onClose }: BetFormProps) {
                 disabled={mutation.isPending}
                 data-autofocus
                 onChange={(v) => {
+                  const betStep = auction.trading.bet_step;
+                  if (betStep <= 0) return;
                   if (typeof v === "number") {
-                    const betStep = auction.trading.bet_step;
                     field.onChange(Math.round(v / betStep) * betStep);
                   } else {
                     field.onChange(v ? parseFloat(v) : 0);

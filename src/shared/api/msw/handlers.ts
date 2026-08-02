@@ -85,6 +85,11 @@ function initStore() {
 
 void initStore();
 
+/** @public — exported for test reset */
+export function resetStore() {
+  _store = null;
+}
+
 export const handlers = [
   http.post(`${API_BASE_URL}/auctions/list`, async ({ request }) => {
     const raw = await request.json();

@@ -12,6 +12,28 @@ import type {
 import { CITIES } from "@/shared/config";
 import { uuid } from "@/shared/lib";
 
+const BET_STEP_OPTIONS = [50, 100, 200, 500, 1000] as const;
+
+const MIN_DOWN_PRICE = 1000;
+const PRICE_RANGE_MIN = 10_000;
+const PRICE_RANGE_MAX = 200_000;
+const PRICE_SPREAD_MIN = 0;
+const PRICE_SPREAD_MAX = 5000;
+const DOWN_PRICE_SPREAD_MAX = 20_000;
+const DOWN_PRICE_SPREAD_MIN = 5000;
+
+const DATE_LOAD_MIN = 1;
+const DATE_LOAD_MAX = 14;
+const DATE_UNLOAD_MIN = 15;
+const DATE_UNLOAD_MAX = 30;
+
+const CARGO_WEIGHT_MIN = 500;
+const CARGO_WEIGHT_MAX = 20_000;
+const CARGO_VOLUME_MIN = 10;
+const CARGO_VOLUME_MAX = 100;
+const PRICE_PER_KM_MIN = 5;
+const PRICE_PER_KM_MAX = 50;
+
 function pick<T>(arr: readonly T[]): T {
   const value = arr[Math.floor(Math.random() * arr.length)];
   if (value === undefined) throw new Error("Cannot pick from empty array");
@@ -106,14 +128,17 @@ function generateTrading(
   status: AuctionStatus,
   currentPrice: number
 ): Trading {
-  const steps = [50, 100, 200, 500, 1000] as const;
+  const steps = BET_STEP_OPTIONS as unknown as number[];
   const step = pick(steps);
   const snap = (v: number) => Math.round(v / step) * step;
 
   const minRaw =
     aucType === "Down"
-      ? Math.max(1000, currentPrice - randomInt(5000, 20000))
-      : currentPrice - randomInt(0, 5000);
+      ? Math.max(
+          MIN_DOWN_PRICE,
+          currentPrice - randomInt(DOWN_PRICE_SPREAD_MIN, DOWN_PRICE_SPREAD_MAX)
+        )
+      : currentPrice - randomInt(PRICE_SPREAD_MIN, PRICE_SPREAD_MAX);
 
   return {
     can_set_bet:
@@ -149,7 +174,7 @@ export function generateSeedAuctions(count: number): AuctionDetail[] {
       unloadCity = pick(CITIES)!;
     }
 
-    const currentPrice = randomInt(10000, 200000);
+    const currentPrice = randomInt(PRICE_RANGE_MIN, PRICE_RANGE_MAX);
     const hideAddresses = Math.random() > 0.8;
     const hideBetsHistory = Math.random() > 0.85;
     const noViewCargoPrice = Math.random() > 0.9;
@@ -164,18 +189,31 @@ export function generateSeedAuctions(count: number): AuctionDetail[] {
       status,
       load_city: loadCity,
       unload_city: unloadCity,
-      load_date: new Date(Date.now() + randomInt(1, 14) * 86400000)
+      load_date: new Date(
+        Date.now() + randomInt(DATE_LOAD_MIN, DATE_LOAD_MAX) * 86400000
+      )
         .toISOString()
         .split("T")[0]!,
-      unload_date: new Date(Date.now() + randomInt(15, 30) * 86400000)
+      unload_date: new Date(
+        Date.now() + randomInt(DATE_UNLOAD_MIN, DATE_UNLOAD_MAX) * 86400000
+      )
         .toISOString()
         .split("T")[0]!,
       cargo_name: pick(CARGO_NAMES),
-      cargo_weight: Math.random() > 0.1 ? randomInt(500, 20000) : null,
-      cargo_volume: Math.random() > 0.15 ? randomInt(10, 100) : null,
+      cargo_weight:
+        Math.random() > 0.1
+          ? randomInt(CARGO_WEIGHT_MIN, CARGO_WEIGHT_MAX)
+          : null,
+      cargo_volume:
+        Math.random() > 0.15
+          ? randomInt(CARGO_VOLUME_MIN, CARGO_VOLUME_MAX)
+          : null,
       body_type: Math.random() > 0.2 ? pick(BODY_TYPES) : null,
       current_price: noViewCargoPrice ? 0 : currentPrice,
-      price_per_km: Math.random() > 0.2 ? randomInt(5, 50) : null,
+      price_per_km:
+        Math.random() > 0.2
+          ? randomInt(PRICE_PER_KM_MIN, PRICE_PER_KM_MAX)
+          : null,
       bet_step: trading.bet_step,
       bidder_status: bidderStatus,
       is_bet_present: bidderStatus !== "NotParticipating",
