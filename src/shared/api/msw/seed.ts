@@ -122,7 +122,10 @@ function generateTrading(
 
   return {
     can_set_bet:
-      status !== "Cancelled" && aucType !== "FixPrice" && Math.random() > 0.2,
+      status !== "Cancelled" &&
+      status !== "Draft" &&
+      aucType !== "FixPrice" &&
+      Math.random() > 0.2,
     current_price: snap(currentPrice),
     min_price: snap(minRaw),
     max_price:

@@ -197,7 +197,7 @@ export const handlers = [
   http.post(
     `${API_BASE_URL}/auctions/:auctionUuid/bets`,
     async ({ params, request }) => {
-      const { auctionUuid } = params;
+      const auctionUuid = params.auctionUuid as string;
       const auction = store.auctions.get(auctionUuid as string);
       if (!auction) {
         return HttpResponse.json(
