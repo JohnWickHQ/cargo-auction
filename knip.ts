@@ -6,11 +6,7 @@ const config: KnipConfig = {
     type: true,
   },
   project: ["src/**/*.{ts,tsx}"],
-  ignore: [
-    "src/entities/auction/index.ts",
-    "src/pages/auction-list/model/use-filters-sync.ts",
-    "src/shared/api/msw/handlers.ts",
-  ],
+  ignore: ["src/entities/auction/index.ts"],
   ignoreDependencies: ["postcss-preset-mantine", "postcss-simple-vars"],
 };
 
