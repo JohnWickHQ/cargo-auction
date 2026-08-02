@@ -12,9 +12,7 @@ export function filterAuctions(
   const aucValues = Array.from(auctions.values());
 
   const filtered: AuctionDetail[] = [];
-  for (let i = 0; i < aucValues.length; i++) {
-    const a = aucValues[i]!;
-
+  for (const a of aucValues) {
     if (
       request.cargo_num &&
       !a.cargo_num.toLowerCase().includes(request.cargo_num.toLowerCase())

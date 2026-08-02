@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { useParams, useSearch, useNavigate } from "@tanstack/react-router";
+import type { z } from "zod";
 import {
   Title,
   Tabs,
@@ -17,7 +18,10 @@ import { AuctionCard } from "./AuctionCard.component";
 import { BetList } from "./BetList.component";
 import { BetForm } from "./BetForm.component";
 import { useUiStore } from "../model/use-ui-store";
+import type { detailSearchSchema } from "../model/detail-search.schema";
 import { SuspenseBoundary } from "@/shared/ui";
+
+type DetailSearch = z.infer<typeof detailSearchSchema>;
 
 function DetailPageFallback() {
   return <Skeleton height={400} radius="sm" />;
@@ -42,8 +46,8 @@ function AuctionDetailPageInner() {
     closeBetForm();
     void navigate({
       to: ".",
-      search: (prev) => {
-        const { action: _, ...rest } = prev as Record<string, unknown>;
+      search: (prev: DetailSearch) => {
+        const { action: _, ...rest } = prev;
         return rest;
       },
       replace: true,
@@ -63,7 +67,7 @@ function AuctionDetailPageInner() {
           setDetailTab(tab);
           void navigate({
             to: ".",
-            search: (prev) => ({ ...(prev as object), tab }),
+            search: (prev: DetailSearch) => ({ ...prev, tab }),
             replace: true,
           });
         }}

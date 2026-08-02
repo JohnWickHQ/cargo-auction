@@ -4,7 +4,9 @@ import { Providers } from "@/app/providers";
 import { App } from "@/app/App.component";
 import "@/app/styles/global.css";
 
-createRoot(document.getElementById("root")!).render(
+const rootEl = document.getElementById("root");
+if (!rootEl) throw new Error("Root element #root not found");
+createRoot(rootEl).render(
   <StrictMode>
     <Providers>
       <App />

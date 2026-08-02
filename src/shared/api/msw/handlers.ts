@@ -1,7 +1,6 @@
 import { http, HttpResponse } from "msw";
 import type {
   AuctionListRequest,
-  SetBetRequest,
   SetBetResponse,
   BetsResponse,
   Bet,
@@ -18,6 +17,10 @@ import {
   applyWinStatus,
 } from "./bet-logic";
 import { uuid } from "@/shared/lib";
+import {
+  auctionListRequestSchema,
+  setBetRequestSchema,
+} from "./request-schemas";
 
 let _store: MswStore | null = null;
 
@@ -84,14 +87,33 @@ void initStore();
 
 export const handlers = [
   http.post(`${API_BASE_URL}/auctions/list`, async ({ request }) => {
-    const body = (await request.json()) as AuctionListRequest;
+    const raw = await request.json();
+    const parsed = auctionListRequestSchema.parse(raw);
+    const body = {
+      page: parsed.page ?? 1,
+      per_page: parsed.per_page ?? 20,
+      cargo_num: parsed.cargo_num,
+      status: parsed.status,
+      statuses: parsed.statuses,
+      auc_type: parsed.auc_type,
+      load_city: parsed.load_city,
+      unload_city: parsed.unload_city,
+      load_date_from: parsed.load_date_from,
+      load_date_to: parsed.load_date_to,
+      is_available: parsed.is_available,
+      is_bidder: parsed.is_bidder,
+      price_from: parsed.price_from,
+      price_to: parsed.price_to,
+    } as AuctionListRequest;
     const response = filterAuctions(getStore().auctions, body);
     return HttpResponse.json(response);
   }),
 
   http.get(`${API_BASE_URL}/auctions/:auctionUuid`, ({ params }) => {
-    const { auctionUuid } = params;
-    const auction = getStore().auctions.get(auctionUuid as string);
+    const auctionUuid = Array.isArray(params.auctionUuid)
+      ? params.auctionUuid[0]!
+      : params.auctionUuid;
+    const auction = getStore().auctions.get(auctionUuid);
     if (!auction) {
       return HttpResponse.json(
         { error: "NOT_FOUND", message: "Аукцион не найден" },
@@ -102,15 +124,17 @@ export const handlers = [
   }),
 
   http.get(`${API_BASE_URL}/auctions/:auctionUuid/bets`, ({ params }) => {
-    const { auctionUuid } = params;
-    const auction = getStore().auctions.get(auctionUuid as string);
+    const auctionUuid = Array.isArray(params.auctionUuid)
+      ? params.auctionUuid[0]!
+      : params.auctionUuid;
+    const auction = getStore().auctions.get(auctionUuid);
     if (!auction) {
       return HttpResponse.json(
         { error: "NOT_FOUND", message: "Аукцион не найден" },
         { status: 404 }
       );
     }
-    const betList = getStore().bets.get(auctionUuid as string) ?? [];
+    const betList = getStore().bets.get(auctionUuid) ?? [];
     const response: BetsResponse = {
       items: betList,
       total_participants: new Set(betList.map((b) => b.carrier_name)).size,
@@ -121,8 +145,10 @@ export const handlers = [
   http.post(
     `${API_BASE_URL}/auctions/:auctionUuid/bets`,
     async ({ params, request }) => {
-      const auctionUuid = params.auctionUuid as string;
-      const auction = getStore().auctions.get(auctionUuid as string);
+      const auctionUuid = Array.isArray(params.auctionUuid)
+        ? params.auctionUuid[0]!
+        : params.auctionUuid;
+      const auction = getStore().auctions.get(auctionUuid);
       if (!auction) {
         return HttpResponse.json(
           { error: "NOT_FOUND", message: "Аукцион не найден" },
@@ -130,7 +156,8 @@ export const handlers = [
         );
       }
 
-      const body = (await request.json()) as SetBetRequest;
+      const raw = await request.json();
+      const body = setBetRequestSchema.parse(raw);
       const { trading } = auction;
 
       const validationError = validateBetPrice(body.price, {
@@ -149,7 +176,7 @@ export const handlers = [
         );
       }
 
-      const betList = getStore().bets.get(auctionUuid as string) ?? [];
+      const betList = getStore().bets.get(auctionUuid) ?? [];
 
       const newBet = createBet(body.price, "Вы");
       betList.push(newBet);
@@ -157,7 +184,7 @@ export const handlers = [
       const ranked = rankBets(betList, auction.auc_type);
       applyWinStatus(ranked, auction);
 
-      getStore().bets.set(auctionUuid as string, ranked);
+      getStore().bets.set(auctionUuid, ranked);
 
       const response: SetBetResponse = {
         success: true,

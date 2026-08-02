@@ -13,7 +13,9 @@ import { CITIES } from "@/shared/config";
 import { uuid } from "@/shared/lib";
 
 function pick<T>(arr: readonly T[]): T {
-  return arr[Math.floor(Math.random() * arr.length)]!;
+  const value = arr[Math.floor(Math.random() * arr.length)];
+  if (value === undefined) throw new Error("Cannot pick from empty array");
+  return value;
 }
 
 function randomInt(min: number, max: number): number {
@@ -105,7 +107,7 @@ function generateTrading(
   currentPrice: number
 ): Trading {
   const steps = [50, 100, 200, 500, 1000] as const;
-  const step = steps[randomInt(0, 4)]!;
+  const step = pick(steps);
   const snap = (v: number) => Math.round(v / step) * step;
 
   const minRaw =
@@ -153,7 +155,7 @@ export function generateSeedAuctions(count: number): AuctionDetail[] {
     const noViewCargoPrice = Math.random() > 0.9;
     const trading = generateTrading(aucType, status, currentPrice);
 
-    const bidderStatus: BidderStatus = pick(BIDDER_STATUSES)!;
+    const bidderStatus: BidderStatus = pick(BIDDER_STATUSES);
 
     const auction: AuctionDetail = {
       uuid: uuid(),
@@ -162,18 +164,16 @@ export function generateSeedAuctions(count: number): AuctionDetail[] {
       status,
       load_city: loadCity,
       unload_city: unloadCity,
-      load_date:
-        new Date(Date.now() + randomInt(1, 14) * 86400000)
-          .toISOString()
-          .split("T")[0] ?? "",
-      unload_date:
-        new Date(Date.now() + randomInt(15, 30) * 86400000)
-          .toISOString()
-          .split("T")[0] ?? "",
-      cargo_name: pick(CARGO_NAMES)!,
+      load_date: new Date(Date.now() + randomInt(1, 14) * 86400000)
+        .toISOString()
+        .split("T")[0]!,
+      unload_date: new Date(Date.now() + randomInt(15, 30) * 86400000)
+        .toISOString()
+        .split("T")[0]!,
+      cargo_name: pick(CARGO_NAMES),
       cargo_weight: Math.random() > 0.1 ? randomInt(500, 20000) : null,
       cargo_volume: Math.random() > 0.15 ? randomInt(10, 100) : null,
-      body_type: Math.random() > 0.2 ? pick(BODY_TYPES)! : null,
+      body_type: Math.random() > 0.2 ? pick(BODY_TYPES) : null,
       current_price: noViewCargoPrice ? 0 : currentPrice,
       price_per_km: Math.random() > 0.2 ? randomInt(5, 50) : null,
       bet_step: trading.bet_step,

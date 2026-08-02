@@ -13,6 +13,7 @@ import {
   bidderStatusLabels,
   formatPrice,
   getBetAction,
+  formatDate,
 } from "@/shared/config";
 
 const badgeStyles = {
@@ -73,11 +74,7 @@ export const DesktopRow = memo(function DesktopRow({
       <Table.Td>
         {auction.load_city} → {auction.unload_city}
       </Table.Td>
-      <Table.Td>
-        {auction.load_date
-          ? new Date(auction.load_date).toLocaleDateString("ru-RU")
-          : "—"}
-      </Table.Td>
+      <Table.Td>{formatDate(auction.load_date)}</Table.Td>
       <Table.Td>
         <Text size="sm">{auction.cargo_name}</Text>
         <Group gap={4} mt={2}>

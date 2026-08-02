@@ -147,10 +147,13 @@ export function AuctionFilters() {
               value={
                 local.load_date_from ? new Date(local.load_date_from) : null
               }
-              onChange={(v: Date | null) =>
+              onChange={(v) =>
                 setLocal({
                   ...local,
-                  load_date_from: v ? v.toISOString().split("T")[0] : undefined,
+                  load_date_from:
+                    v instanceof Date
+                      ? v.toISOString().split("T")[0]
+                      : undefined,
                 })
               }
               clearable
@@ -161,10 +164,13 @@ export function AuctionFilters() {
             <DatePickerInput
               label="Дата погрузки до"
               value={local.load_date_to ? new Date(local.load_date_to) : null}
-              onChange={(v: Date | null) =>
+              onChange={(v) =>
                 setLocal({
                   ...local,
-                  load_date_to: v ? v.toISOString().split("T")[0] : undefined,
+                  load_date_to:
+                    v instanceof Date
+                      ? v.toISOString().split("T")[0]
+                      : undefined,
                 })
               }
               clearable

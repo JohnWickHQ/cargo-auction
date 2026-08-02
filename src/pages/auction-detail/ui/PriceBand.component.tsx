@@ -8,20 +8,11 @@ import {
   Group,
   Button,
 } from "@mantine/core";
-import type { BidderStatus } from "@/shared/types";
+import type { Trading } from "@/shared/types";
 import { bidderStatusLabels, formatPrice } from "@/shared/config";
 
-interface TradingInfo {
-  current_price: number;
-  min_price: number | null;
-  max_price: number | null;
-  bet_step: number;
-  bidder_status: BidderStatus;
-  can_set_bet: boolean;
-}
-
 interface PriceBandProps {
-  trading: TradingInfo;
+  trading: Trading;
   is_bet_present: boolean;
   onBetClick?: () => void;
 }
@@ -46,7 +37,7 @@ export const PriceBand = memo(function PriceBand({
             {formatPrice(trading.current_price)}
           </Text>
         </Stack>
-        {trading.min_price !== null && trading.min_price !== undefined && (
+        {trading.min_price !== null && (
           <Stack gap={2}>
             <Text size="xs" c="dimmed">
               Мин. цена
@@ -54,7 +45,7 @@ export const PriceBand = memo(function PriceBand({
             <Text size="sm">{formatPrice(trading.min_price)}</Text>
           </Stack>
         )}
-        {trading.max_price !== null && trading.max_price !== undefined && (
+        {trading.max_price !== null && (
           <Stack gap={2}>
             <Text size="xs" c="dimmed">
               Макс. цена

@@ -7,8 +7,12 @@ const DatePickerInputInner = lazy(async () => {
   return { default: mod.DatePickerInput };
 });
 
+type DatePickerInputProps = Partial<
+  React.ComponentProps<typeof DatePickerInputInner>
+>;
+
 export const DatePickerInput = memo(function DatePickerInput(
-  props: Record<string, unknown>
+  props: DatePickerInputProps
 ) {
   return (
     <Suspense fallback={<Skeleton height={36} />}>
@@ -16,3 +20,5 @@ export const DatePickerInput = memo(function DatePickerInput(
     </Suspense>
   );
 });
+
+export type { DatePickerInputProps };

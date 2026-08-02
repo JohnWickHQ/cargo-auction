@@ -4,7 +4,7 @@ export function validateBetPrice(
     minPrice,
     maxPrice,
     betStep,
-  }: { minPrice?: number | null; maxPrice?: number | null; betStep: number }
+  }: { minPrice: number | null; maxPrice: number | null; betStep: number }
 ): string | null {
   if (!price || price <= 0) {
     return "Цена обязательна и должна быть больше 0";

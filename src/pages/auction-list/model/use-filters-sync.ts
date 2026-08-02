@@ -25,7 +25,7 @@ export function useFiltersSync(): [
     } else {
       void navigate({
         to: ".",
-        search: (prev: Record<string, unknown>) => {
+        search: (prev) => {
           const prevParsed = auctionFiltersSchema.safeParse(prev ?? {});
           const base: AuctionFilters = prevParsed.success
             ? prevParsed.data

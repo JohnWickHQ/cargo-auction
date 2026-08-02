@@ -1,5 +1,6 @@
 import { memo } from "react";
 import { SimpleGrid, Stack, Text } from "@mantine/core";
+import { formatDate } from "@/shared/config";
 
 interface RouteInfoProps {
   load_city: string;
@@ -29,11 +30,9 @@ export const RouteInfo = memo(function RouteInfo({
           Даты
         </Text>
         <Text size="sm">
-          {load_date ? new Date(load_date).toLocaleDateString("ru-RU") : "—"}
+          {formatDate(load_date)}
           {" — "}
-          {unload_date
-            ? new Date(unload_date).toLocaleDateString("ru-RU")
-            : "—"}
+          {formatDate(unload_date)}
         </Text>
       </Stack>
     </SimpleGrid>

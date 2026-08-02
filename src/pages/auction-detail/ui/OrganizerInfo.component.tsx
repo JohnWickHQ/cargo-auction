@@ -1,11 +1,12 @@
 import { memo } from "react";
 import { Stack, Text, SimpleGrid } from "@mantine/core";
+import type { Contact } from "@/shared/types";
 
 interface OrganizerInfoProps {
   name: string;
   inn: string;
   hide_points_address_and_contacts: boolean;
-  contacts: { person: string; phone: string; email: string } | null;
+  contacts: Contact | null;
 }
 
 export const OrganizerInfo = memo(function OrganizerInfo({

@@ -1,4 +1,9 @@
-import type { Bet, BidderStatus, AuctionDetail } from "@/shared/types";
+import type {
+  Bet,
+  BidderStatus,
+  AuctionDetail,
+  AuctionType,
+} from "@/shared/types";
 import { VAT_RATE } from "@/shared/config";
 import { uuid } from "@/shared/lib";
 
@@ -17,7 +22,7 @@ export function createBet(price: number, carrierName = "Перевозчик-1")
   };
 }
 
-export function rankBets(bets: Bet[], aucType: string): Bet[] {
+export function rankBets(bets: Bet[], aucType: AuctionType): Bet[] {
   const isUp = aucType === "Up" || aucType === "Request";
   const sorted = [...bets].sort((a, b) =>
     isUp ? b.price - a.price : a.price - b.price

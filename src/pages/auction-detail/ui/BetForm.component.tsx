@@ -19,13 +19,31 @@ import {
   type BetFormValues,
 } from "../model/bet-form.schema";
 import type { ValidationError } from "@/shared/types";
+import type { AuctionType } from "@/shared/types";
 
 interface BetFormProps {
   opened: boolean;
   onClose: () => void;
 }
 
-// eslint-disable-next-line complexity
+function getDefaultPrice(
+  aucType: AuctionType,
+  trading: { current_price: number; bet_step: number; min_price: number | null }
+): number {
+  switch (aucType) {
+    case "Up":
+    case "Request":
+      return trading.current_price + trading.bet_step;
+    case "Down":
+      return Math.max(
+        trading.current_price - trading.bet_step,
+        trading.min_price ?? 0
+      );
+    case "FixPrice":
+      return trading.current_price;
+  }
+}
+
 export function BetForm({ opened, onClose }: BetFormProps) {
   const { auctionUuid } = useParams({ from: "/auctions/$auctionUuid" });
   const { data: auction } = useAuctionDetail(auctionUuid);
@@ -34,18 +52,14 @@ export function BetForm({ opened, onClose }: BetFormProps) {
   const schema = useMemo(
     () =>
       createBetFormSchema({
-        min_price: auction?.trading.min_price ?? null,
-        max_price: auction?.trading.max_price ?? null,
-        bet_step: auction?.trading.bet_step ?? 1,
-      } as {
-        min_price?: number | null;
-        max_price?: number | null;
-        bet_step: number;
+        min_price: auction.trading.min_price,
+        max_price: auction.trading.max_price,
+        bet_step: auction.trading.bet_step,
       }),
     [
-      auction?.trading.min_price,
-      auction?.trading.max_price,
-      auction?.trading.bet_step,
+      auction.trading.min_price,
+      auction.trading.max_price,
+      auction.trading.bet_step,
     ]
   );
 
@@ -57,32 +71,28 @@ export function BetForm({ opened, onClose }: BetFormProps) {
     formState: { errors },
   } = useForm<BetFormValues>({
     resolver: zodResolver(schema),
-    defaultValues: { price: auction?.trading.current_price } as {
-      price?: number;
-    },
+    defaultValues: { price: auction.trading.current_price },
   });
 
-  const onSubmit = async (values: BetFormValues) => {
+  const onSubmit = async (data: BetFormValues) => {
     try {
-      await mutation.mutateAsync({ price: values.price });
+      await mutation.mutateAsync({ price: data.price });
       notifications.show({
-        title: "Ставка принята",
-        message: "Ваша ставка успешно размещена",
+        title: "Ставка размещена",
+        message: `Ваша ставка: ${new Intl.NumberFormat("ru-RU").format(data.price)} ₽`,
         color: "green",
       });
-      reset();
+      reset({ price: data.price });
       onClose();
     } catch (err: unknown) {
-      const validationErr = err as ValidationError | undefined;
+      const validationErr = err as ValidationError;
       if (
         validationErr?.error === "VALIDATION_ERROR" &&
         validationErr.details
       ) {
-        validationErr.details.forEach((d) => {
-          if (d.field === "price") {
-            setError("price", { message: d.message });
-          }
-        });
+        for (const detail of validationErr.details) {
+          setError("price", { message: detail.message });
+        }
       } else {
         notifications.show({
           title: "Ошибка",
@@ -93,18 +103,7 @@ export function BetForm({ opened, onClose }: BetFormProps) {
     }
   };
 
-  if (!auction) return null;
-
-  const isUp = auction.auc_type === "Up" || auction.auc_type === "Request";
-  const isDown = auction.auc_type === "Down";
-  const defaultPrice = isUp
-    ? auction.trading.current_price + auction.trading.bet_step
-    : isDown
-      ? Math.max(
-          auction.trading.current_price - auction.trading.bet_step,
-          auction.trading.min_price ?? 0
-        )
-      : auction.trading.current_price;
+  const defaultPrice = getDefaultPrice(auction.auc_type, auction.trading);
 
   return (
     <Modal
@@ -116,9 +115,7 @@ export function BetForm({ opened, onClose }: BetFormProps) {
     >
       <form
         onSubmit={(e) => {
-          void (
-            handleSubmit(onSubmit) as (e: React.BaseSyntheticEvent) => void
-          )(e);
+          void handleSubmit(onSubmit)(e);
         }}
       >
         <Stack>
@@ -166,7 +163,7 @@ export function BetForm({ opened, onClose }: BetFormProps) {
                     const betStep = auction.trading.bet_step;
                     field.onChange(Math.round(v / betStep) * betStep);
                   } else {
-                    field.onChange(v as never);
+                    field.onChange(v ? parseFloat(v) : 0);
                   }
                 }}
               />
@@ -185,11 +182,7 @@ export function BetForm({ opened, onClose }: BetFormProps) {
           )}
 
           <Group justify="flex-end">
-            <Button
-              variant="default"
-              onClick={onClose}
-              disabled={mutation.isPending}
-            >
+            <Button variant="default" onClick={onClose}>
               Отмена
             </Button>
             <Button type="submit" loading={mutation.isPending}>

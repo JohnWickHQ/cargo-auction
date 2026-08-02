@@ -28,7 +28,7 @@ function BetListInner() {
   const { auctionUuid } = useParams({ from: "/auctions/$auctionUuid" });
   const { data } = useBets(auctionUuid);
 
-  if (!data || data.items.length === 0) {
+  if (data.items.length === 0) {
     return (
       <Center py="xl">
         <Stack align="center" gap="sm">

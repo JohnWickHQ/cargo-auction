@@ -13,6 +13,7 @@ import {
   bidderStatusLabels,
   formatPrice,
   getBetAction,
+  formatDate,
 } from "@/shared/config";
 
 const MobileCardInner = memo(function MobileCard({
@@ -63,9 +64,7 @@ const MobileCardInner = memo(function MobileCard({
             {auction.load_city} → {auction.unload_city}
           </Text>
           <Text size="xs" c="dimmed">
-            {auction.load_date
-              ? new Date(auction.load_date).toLocaleDateString("ru-RU")
-              : "—"}
+            {formatDate(auction.load_date)}
           </Text>
         </Group>
         <Group gap="xs" wrap="wrap">
@@ -107,8 +106,7 @@ const MobileCardInner = memo(function MobileCard({
           <Group gap="xs">
             {auction.is_bet_present ? (
               <Badge color="blue" variant="light" size="sm">
-                {bidderStatusLabels[auction.bidder_status] ??
-                  auction.bidder_status}
+                {bidderStatusLabels[auction.bidder_status]}
               </Badge>
             ) : (
               <Text size="sm" c="dimmed">

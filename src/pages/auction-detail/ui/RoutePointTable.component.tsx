@@ -1,12 +1,7 @@
 import { memo } from "react";
 import { Table } from "@mantine/core";
-
-interface RoutePoint {
-  city: string;
-  address: string;
-  type: "loading" | "unloading";
-  date: string;
-}
+import type { RoutePoint } from "@/shared/types";
+import { formatDate } from "@/shared/config";
 
 interface RoutePointTableProps {
   routePoints: RoutePoint[];
@@ -33,9 +28,7 @@ export const RoutePointTable = memo(function RoutePointTable({
             </Table.Td>
             <Table.Td>{point.city}</Table.Td>
             <Table.Td>{point.address || "—"}</Table.Td>
-            <Table.Td>
-              {new Date(point.date).toLocaleDateString("ru-RU")}
-            </Table.Td>
+            <Table.Td>{formatDate(point.date)}</Table.Td>
           </Table.Tr>
         ))}
       </Table.Tbody>
