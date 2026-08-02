@@ -12,7 +12,7 @@
 ## Быстрый старт
 
 ```bash
-git clone <repo-url> cargo-auction
+git clone https://github.com/JohnWickHQ/cargo-auction.git
 cd cargo-auction
 npm install
 npm run dev
