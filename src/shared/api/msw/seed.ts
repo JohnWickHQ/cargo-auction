@@ -147,7 +147,7 @@ export function generateSeedAuctions(count: number): AuctionDetail[] {
 
   for (let i = 0; i < count; i++) {
     const aucType = AUCTION_TYPES[i % AUCTION_TYPES.length]!;
-    const status = AUCTION_STATUSES[i % AUCTION_STATUSES.length]!;
+    const status = pick(AUCTION_STATUSES)!;
     const loadCity = pick(CITIES)!;
     let unloadCity = pick(CITIES)!;
     while (unloadCity === loadCity) {
@@ -160,8 +160,7 @@ export function generateSeedAuctions(count: number): AuctionDetail[] {
     const noViewCargoPrice = Math.random() > 0.9;
     const trading = generateTrading(aucType, status, currentPrice);
 
-    const bidderStatus: BidderStatus =
-      BIDDER_STATUSES[i % BIDDER_STATUSES.length]!;
+    const bidderStatus: BidderStatus = pick(BIDDER_STATUSES)!;
 
     const auction: AuctionDetail = {
       uuid: uuid(),
