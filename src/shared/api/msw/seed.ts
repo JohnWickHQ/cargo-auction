@@ -106,7 +106,11 @@ function generateRoutePoints(
   ];
 }
 
-function generateTrading(aucType: AuctionType, currentPrice: number): Trading {
+function generateTrading(
+  aucType: AuctionType,
+  status: AuctionStatus,
+  currentPrice: number
+): Trading {
   const steps = [50, 100, 200, 500, 1000] as const;
   const step = steps[randomInt(0, 4)]!;
   const snap = (v: number) => Math.round(v / step) * step;
@@ -117,7 +121,8 @@ function generateTrading(aucType: AuctionType, currentPrice: number): Trading {
       : currentPrice - randomInt(0, 5000);
 
   return {
-    can_set_bet: aucType !== "FixPrice" && Math.random() > 0.2,
+    can_set_bet:
+      status !== "Cancelled" && aucType !== "FixPrice" && Math.random() > 0.2,
     current_price: snap(currentPrice),
     min_price: snap(minRaw),
     max_price:
@@ -153,7 +158,7 @@ export function generateSeedAuctions(count: number): AuctionDetail[] {
     const hideAddresses = Math.random() > 0.8;
     const hideBetsHistory = Math.random() > 0.85;
     const noViewCargoPrice = Math.random() > 0.9;
-    const trading = generateTrading(aucType, currentPrice);
+    const trading = generateTrading(aucType, status, currentPrice);
 
     const bidderStatus: BidderStatus =
       BIDDER_STATUSES[i % BIDDER_STATUSES.length]!;
