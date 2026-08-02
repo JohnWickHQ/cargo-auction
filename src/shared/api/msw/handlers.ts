@@ -33,11 +33,12 @@ function initStore() {
     const bets: Bet[] = [];
 
     for (let i = 0; i < betCount; i++) {
-      const offset = (betCount - i) * auction.bet_step * 2;
       const betPrice =
-        auction.auc_type === "Down"
-          ? auction.current_price + offset
-          : auction.current_price - offset;
+        auction.auc_type === "FixPrice"
+          ? auction.current_price
+          : auction.auc_type === "Down"
+            ? auction.current_price + (betCount - i) * auction.bet_step * 2
+            : auction.current_price - (betCount - i) * auction.bet_step * 2;
       const isCancelled = Math.random() > 0.85;
       bets.push({
         uuid: uuid(),
@@ -71,6 +72,11 @@ function initStore() {
     }
 
     store.bets.set(auction.uuid, bets);
+
+    if (auction.auc_type === "FixPrice" && bets.length > 0) {
+      auction.trading.can_set_bet = false;
+      auction.primary_action = "disabled";
+    }
   }
 }
 
@@ -313,6 +319,11 @@ export const handlers = [
       auction.trading.bidder_status = newStatus;
       auction.is_bet_present = true;
       auction.primary_action = "change_bet";
+
+      if (auction.auc_type === "FixPrice") {
+        auction.trading.can_set_bet = false;
+        auction.primary_action = "disabled";
+      }
 
       const response: SetBetResponse = {
         success: true,
