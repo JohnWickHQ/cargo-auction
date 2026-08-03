@@ -1,15 +1,14 @@
 # Cargo Auction SPA
 
-Одностраничное приложение для работы с грузовыми аукционами. Список аукционов с
-фильтрацией и пагинацией, детальная карточка, история ставок, размещение ставки.
-Бэкенд не нужен — API замокан через MSW.
+Single-page application for cargo auctions: auction list with filtering and pagination,
+detail card, bet history, and bet placement. No backend needed — API mocked via MSW.
 
-## Требования
+## Prerequisites
 
 - Node.js >= 20.18.0
 - npm >= 10.0.0
 
-## Быстрый старт
+## Quick Start
 
 ```bash
 git clone https://github.com/JohnWickHQ/cargo-auction.git
@@ -18,70 +17,69 @@ npm install
 npm run dev
 ```
 
-Открыть [http://localhost:5173/auctions](http://localhost:5173/auctions).
+Open [http://localhost:5173/auctions](http://localhost:5173/auctions).
 
-## Команды
+## Commands
 
-| Команда                | Назначение                                                     |
+| Command                | Description                                                    |
 | ---------------------- | -------------------------------------------------------------- |
-| `npm run dev`          | Dev-сервер на localhost:5173                                   |
-| `npm test`             | Unit-тесты (Vitest, 103 теста)                                 |
-| `npm run test:e2e`     | e2e-тесты (Playwright)                                         |
-| `npm run build`        | Production-сборка в `dist/`                                    |
-| `npm run lint`         | ESLint (type-aware, 0 ошибок)                                  |
-| `npm run typecheck`    | Проверка TypeScript (strict)                                   |
-| `npm run coverage`     | Покрытие тестами (text + HTML)                                 |
-| `npm run knip`         | Мёртвый код / неиспользуемые зависимости (0 issues)            |
-| `npm run format`       | Prettier — форматировать                                       |
-| `npm run format:check` | Prettier — проверить                                           |
-| `npm run finish`       | Полный прогон: lint → typecheck → test → format → knip → build |
+| `npm run dev`          | Dev server at localhost:5173                                   |
+| `npm test`             | Unit tests (Vitest, 103 tests)                                 |
+| `npm run test:e2e`     | e2e tests (Playwright)                                         |
+| `npm run build`        | Production build to `dist/`                                    |
+| `npm run lint`         | ESLint (type-aware, 0 errors required)                         |
+| `npm run typecheck`    | TypeScript type check (strict)                                 |
+| `npm run coverage`     | Test coverage report (text + HTML)                             |
+| `npm run knip`         | Dead code / unused dependency check (0 issues)                 |
+| `npm run format`       | Prettier — write                                               |
+| `npm run format:check` | Prettier — check                                               |
+| `npm run finish`       | Full pipeline: lint → typecheck → test → format → knip → build |
 
-## Стек
+## Stack
 
-| Слой          | Технология            |
-| ------------- | --------------------- |
-| Фреймворк     | React 19              |
-| Язык          | TypeScript (strict)   |
-| Сборщик       | Vite 6                |
-| UI-библиотека | Mantine v7            |
-| Роутинг       | TanStack Router v1    |
-| Данные        | TanStack Query v5     |
-| Формы         | React Hook Form + Zod |
-| API-моки      | MSW v2                |
-| Состояние     | Zustand v5            |
-| Тесты         | Vitest + Playwright   |
-| Линтер        | ESLint (flat config)  |
-| Форматтер     | Prettier              |
-| Гигиена       | Knip                  |
+| Layer      | Technology            |
+| ---------- | --------------------- |
+| Framework  | React 19              |
+| Language   | TypeScript (strict)   |
+| Bundler    | Vite 6                |
+| UI Library | Mantine v7            |
+| Router     | TanStack Router v1    |
+| Data       | TanStack Query v5     |
+| Forms      | React Hook Form + Zod |
+| API Mock   | MSW v2                |
+| State      | Zustand v5            |
+| Testing    | Vitest + Playwright   |
+| Linting    | ESLint (flat config)  |
+| Formatting | Prettier              |
+| Hygiene    | Knip                  |
 
-## Структура проекта
+## Project Structure
 
 ```text
 src/
-├── app/            # Точка входа, провайдеры (Mantine, Query, MSW, Router)
-├── routes/         # Определения роутов TanStack Router
-├── pages/          # Страницы со всей логикой: auction-list, auction-detail
-├── entities/       # Переиспользуемые доменные модели: auction (API, хуки)
-└── shared/         # Инфраструктура: API-клиент, MSW (handlers, store, seed), конфигурация, lib (uuid, валидация), типы, UI
+├── app/            # Entry point, providers (Mantine, Query, MSW, Router)
+├── routes/         # TanStack Router route definitions
+├── pages/          # Pages: auction-list, auction-detail
+├── entities/       # Reusable domain models: auction (API, hooks)
+└── shared/         # Infrastructure: API client, MSW (handlers, store, seed), config, lib (uuid, validation), types, UI
 ```
 
-Feature-Sliced Design: внутренние слои не могут импортировать из внешних. `@/` → `src/`.
+Feature-Sliced Design: inner layers cannot import from outer layers. `@/` resolves to `src/`.
 
-## API (замокано через MSW)
+## API (MSW Mocked)
 
-Все запросы перехватываются MSW в браузере. Бэкенд-сервер не требуется.
+All requests intercepted by MSW in the browser. No backend server required.
 
-| Метод | Путь                          | Описание                      |
-| ----- | ----------------------------- | ----------------------------- |
-| POST  | `/api/v1/auctions/list`       | Список аукционов с пагинацией |
-| GET   | `/api/v1/auctions/:uuid`      | Детальная информация          |
-| GET   | `/api/v1/auctions/:uuid/bets` | История ставок                |
-| POST  | `/api/v1/auctions/:uuid/bets` | Разместить ставку             |
+| Method | Path                          | Description            |
+| ------ | ----------------------------- | ---------------------- |
+| POST   | `/api/v1/auctions/list`       | Paginated auction list |
+| GET    | `/api/v1/auctions/:uuid`      | Auction detail         |
+| GET    | `/api/v1/auctions/:uuid/bets` | Bet history            |
+| POST   | `/api/v1/auctions/:uuid/bets` | Place a bet            |
 
-75 seed-аукционов со сгенерированными данными.
+75 seed auctions with generated data.
 
-## Перед коммитом
+## Before Commit
 
-Husky + lint-staged запускается автоматически на `git commit`. Перед коммитом
-всегда выполняй `npm run finish` — проект должен быть в рабочем состоянии без
-блокирующих ошибок.
+Husky + lint-staged runs automatically on `git commit`. Always run `npm run finish`
+before committing — project must be in a working state with no blocking errors.
